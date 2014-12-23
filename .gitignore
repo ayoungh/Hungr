@@ -1,0 +1,10 @@
+########################
+### Node.js
+########################
+
+# Dependency directory
+node_modules
+
+# Operating system metadata
+.DS_Store
+Thumbs.db
