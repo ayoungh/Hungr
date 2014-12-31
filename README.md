@@ -9,7 +9,7 @@ Plan so far:
 
 Create a node.js server that will handle all of the data
 
-#Routes
+###Routes
 	/api
 	/api/foods
 	/api/foods/food_id
