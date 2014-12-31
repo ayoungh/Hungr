@@ -22,6 +22,9 @@ app.use(bodyParser.json());
 
 
 
+//MODELS
+var Food = require('./models/food');
+
 
 
 //ROUTES
@@ -34,6 +37,12 @@ app.get('/', function (req, res) {
 
 var router = express.Router(); //define our router 
 
+// middleware to use for all requests
+router.use(function(req, res, next) {
+    console.log('router in use...');
+    next(); // make sure we go to the next routes and don't stop here
+});
+
 //api root
 router.route('/').get(function (req, res) {
   res.json({ message:'Api'});
@@ -44,13 +53,29 @@ router.route('/users').get(function (req, res) {
   res.json({ message:'users'});
 });
 
-router.route('/foods').get(function (req, res) {
-  res.json({ message:'foods'});
-});
+router.route('/foods') //http://localhost:PORT/api/foods
+	.get(function (req, res) {
+	  res.json({ message:'All foods'});
+	}).post(function (req, res) {
 
-router.route('/foods/:food_id').get(function (req, res) {
-  res.json({ message:'foods', id: req.params.food_id});
-});
+        var food = new Food(); // create a new instance of the Food model
+        food.name = req.body.name; // set the food name (comes from the request)
+
+        // save the food and check for errors
+        food.save(function(err) {
+            if (err)
+                res.send(err);
+
+            res.json({ message: 'Food created!' });
+        });
+
+
+	});
+
+router.route('/foods/:food_id') //http://localhost:PORT/api/foods/:food_id
+	.get(function (req, res) {
+	  res.json({ message:'foods', id: req.params.food_id});
+	});
 
 
 //append /api onto all router routes 
