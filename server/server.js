@@ -77,10 +77,28 @@ router.route('/foods') //http://localhost:PORT/api/foods
 
 router.route('/foods/:food_id') //http://localhost:PORT/api/foods/:food_id
 	.get(function(req, res) { //get the individual food item by id
-        Food.findById(req.params.food_id, function(err, food) {
+        Food.findById(req.params.food_id, function(err, food) { //find the food model by id
             if (err)
                 res.send(err);
             res.json(food);
+        });
+    })
+    .put(function(req, res) {
+        Food.findById(req.params.food_id, function(err, food) { //find the food model by id
+
+            if (err)
+                res.send(err);
+
+            food.name = req.body.name;  // update the food item info
+
+            // save the food
+            food.save(function(err) {
+                if (err)
+                    res.send(err);
+
+                res.json({ message: 'Food has been updated!' });
+            });
+
         });
     });
 
