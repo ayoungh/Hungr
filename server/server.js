@@ -79,17 +79,19 @@ router.route('/foods/:food_id') //http://localhost:PORT/api/foods/:food_id
 	.get(function(req, res) { //get the individual food item by id
         Food.findById(req.params.food_id, function(err, food) { //find the food model by id
             if (err)
-                res.send(err);
+            	res.send(err); //change this to give back an error in json
+                //res.json({ message: 'Error, the food you are looking for may not exist' });
             res.json(food);
         });
     })
-    .put(function(req, res) {
+    .put(function(req, res) { //update the individual food item by id
         Food.findById(req.params.food_id, function(err, food) { //find the food model by id
 
             if (err)
                 res.send(err);
 
             food.name = req.body.name;  // update the food item info
+            //add an updated time using moment
 
             // save the food
             food.save(function(err) {
@@ -99,6 +101,16 @@ router.route('/foods/:food_id') //http://localhost:PORT/api/foods/:food_id
                 res.json({ message: 'Food has been updated!' });
             });
 
+        });
+    })
+    .delete(function(req, res) { //delete teh food by id
+        Food.remove({
+            _id: req.params.food_id
+        }, function(err, food) {
+            if (err)
+                res.send(err);
+
+            res.json({ message: 'Successfully deleted food item' });
         });
     });
 
