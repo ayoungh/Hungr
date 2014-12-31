@@ -54,9 +54,15 @@ router.route('/users').get(function (req, res) {
 });
 
 router.route('/foods') //http://localhost:PORT/api/foods
-	.get(function (req, res) {
-	  res.json({ message:'All foods'});
-	}).post(function (req, res) {
+    .get(function(req, res) { //get all the food items
+        Food.find(function(err, food) {
+            if (err)
+                res.send(err);
+
+            res.json(food);
+        });
+    })
+	.post(function (req, res) { //post a food item
 
         var food = new Food(); // create a new instance of the Food model
         food.name = req.body.name; // set the food name (comes from the request)
