@@ -63,7 +63,6 @@ router.route('/foods') //http://localhost:PORT/api/foods
         });
     })
 	.post(function (req, res) { //post a food item
-
         var food = new Food(); // create a new instance of the Food model
         food.name = req.body.name; // set the food name (comes from the request)
 
@@ -74,14 +73,16 @@ router.route('/foods') //http://localhost:PORT/api/foods
 
             res.json({ message: 'Food created!' });
         });
-
-
 	});
 
 router.route('/foods/:food_id') //http://localhost:PORT/api/foods/:food_id
-	.get(function (req, res) {
-	  res.json({ message:'foods', id: req.params.food_id});
-	});
+	.get(function(req, res) { //get the individual food item by id
+        Food.findById(req.params.food_id, function(err, food) {
+            if (err)
+                res.send(err);
+            res.json(food);
+        });
+    });
 
 
 //append /api onto all router routes 
