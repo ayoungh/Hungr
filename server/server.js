@@ -58,10 +58,9 @@ app.use('/api', router);
 
 
 
-
 //set the port to use from config file
 app.set('port', config.port);
 
 app.listen(app.get('port'), function() {
-  console.log('Express server listening on port ' + app.get('port'));
+  console.log('Express server listening on port ' + app.get('port') + ' Started: ' + moment().format('MMMM Do YYYY, h:mm:ss a'));
 });
