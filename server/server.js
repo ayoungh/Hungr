@@ -1,4 +1,5 @@
 var express = require('express');
+var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
 
 var moment = require('moment');
@@ -10,19 +11,49 @@ var config = require('./config');
 //DB
 mongoose.connect(config.db);
 
-
 //set our app as express
 var app = express();
 
 
+//Tell our app to use
+app.use(bodyParser.json());
+
+
+
+
+
+//ROUTES
+
 //give a response at root
 app.get('/', function (req, res) {
-  res.send('Hungry World!');
+  res.json({ message:'Hungry World!'});
 });
 
-app.get('/api', function (req, res) {
-  res.send('Api');
+
+var router = express.Router(); //define our router 
+
+//api root
+router.route('/').get(function (req, res) {
+  res.json({ message:'Api'});
 });
+
+
+router.route('/users').get(function (req, res) {
+  res.json({ message:'users'});
+});
+
+router.route('/foods').get(function (req, res) {
+  res.json({ message:'foods'});
+});
+
+router.route('/foods/:food_id').get(function (req, res) {
+  res.json({ message:'foods', id: req.params.food_id});
+});
+
+
+//append /api onto all router routes 
+app.use('/api', router);
+
 
 
 
