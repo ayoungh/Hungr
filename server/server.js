@@ -35,14 +35,15 @@ app.use(passport.initialize());
 app.use(passport.session()); // persistent login sessions
 app.use(flash()); // use connect-flash for flash messages stored in session
 
+var passportConfig = require('./passport')(passport); // pass passport for configuration
 
 
 //MODELS
 var Food = require('./models/food'); //load in our food model
-
+var User = require('./models/user'); //load in our user model
 
 //ROUTES
-var routes = require('./routes/index.js')(app, passport, Food); // load our routes and pass in our app, passport (configured), Food model
+var routes = require('./routes/index.js')(app, passport, Food, User); // load our routes and pass in our app, passport (configured), Food model, User model
 
 
 

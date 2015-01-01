@@ -1,3 +1,4 @@
+//ROUTE
 
 //Get express
 var express = require('express');
@@ -5,7 +6,7 @@ var express = require('express');
 //Get Models - not sure if this is the best way or passing in is better?
 //var Food = require('../models/food');
 
-module.exports = function(app, passport, Food) {
+module.exports = function(app, passport, Food, User) {
 
 	//give a response at root
 	app.get('/', function (req, res) {
@@ -25,11 +26,99 @@ module.exports = function(app, passport, Food) {
 	router.route('/').get(function (req, res) {
 	  res.json({ message:'Api'});
 	});
+  
+
+	//user profile
+	router.route('/profile').get(isLoggedIn, function(req, res) {
+        res.json({
+            user : req.user // get the user out of session and pass to template
+        });
+    });
 
 
-	router.route('/users').get(function (req, res) {
-	  res.json({ message:'users'});
-	});
+	//USERS
+
+	router.route('/users') //http://localhost:PORT/api/users
+	    .get(isLoggedIn, function(req, res) { //get all the users
+	        User.find(function(err, user) {
+	            if (err)
+	                res.send(err);
+
+	            res.json(user);
+	        });
+	    })
+		.post(function (req, res) { //post a user item
+	        var user = new User(); // create a new instance of the User model
+
+	        console.log(user);
+
+	        user.local.email = req.body.email; // set the email for the user (comes from the request)
+	        user.local.password = user.generateHash(req.body.password) // set the password for the user with obfuscation
+
+
+	        // save the user and check for errors
+	        user.save(function(err) {
+	            if (err)
+	                res.send(err);
+
+	            res.json({ 
+	            			message: 'User created!',
+	            			email: user.local.email,
+		                	password: user.local.password
+		                });
+	        });
+		});
+
+
+
+	router.route('/users/:user_id') //http://localhost:PORT/api/users/:user_id
+		.get(function(req, res) { //get the individual user item by id
+	        User.findById(req.params.user_id, function(err, user) { //find the user model by id
+	            if (err)
+	            	res.send(err); //change this to give back an error in json
+	                //res.json({ message: 'Error, the food you are looking for may not exist' });
+	            res.json(user);
+	        });
+	    })
+	    .put(function(req, res) { //update the individual user item by id
+	        User.findById(req.params.user_id, function(err, user) { //find the user model by id
+
+	            if (err)
+	                res.send(err);
+
+	            user.local.email = req.body.email;  // update the user item info
+	            user.local.password = user.generateHash(req.body.password) // set the password for the user with obfuscation
+	            //add an updated time using moment
+
+	            // save the food
+	            user.save(function(err) {
+	                if (err)
+	                    res.send(err);
+
+	                res.json({ 
+			                	message: 'User has been updated!',
+			                	email: user.local.email,
+			                	password: user.local.password
+	                		});
+	            });
+
+	        });
+	    })
+	    .delete(function(req, res) { //delete the user by id
+	        User.remove({
+	            _id: req.params.user_id
+	        }, function(err, food) {
+	            if (err)
+	                res.send(err);
+
+	            res.json({ message: 'Successfully deleted user' });
+	        });
+	    });
+
+
+
+
+	//FOODS	
 
 	router.route('/foods') //http://localhost:PORT/api/foods
 	    .get(function(req, res) { //get all the food items
@@ -43,13 +132,18 @@ module.exports = function(app, passport, Food) {
 		.post(function (req, res) { //post a food item
 	        var food = new Food(); // create a new instance of the Food model
 	        food.name = req.body.name; // set the food name (comes from the request)
+	        food.image = req.body.image; //
 
 	        // save the food and check for errors
 	        food.save(function(err) {
 	            if (err)
 	                res.send(err);
 
-	            res.json({ message: 'Food created!' });
+	            res.json({ 
+	            			message: 'Food created!',
+	            			name: food.name,
+		                	image: food.image
+		                });
 	        });
 		});
 
@@ -69,6 +163,7 @@ module.exports = function(app, passport, Food) {
 	                res.send(err);
 
 	            food.name = req.body.name;  // update the food item info
+	            food.image = req.body.image; //
 	            //add an updated time using moment
 
 	            // save the food
@@ -76,7 +171,11 @@ module.exports = function(app, passport, Food) {
 	                if (err)
 	                    res.send(err);
 
-	                res.json({ message: 'Food has been updated!' });
+	                res.json({ 
+			                	message: 'Food has been updated!',
+			                	name: food.name,
+			                	image: food.image
+	                		});
 	            });
 
 	        });
@@ -100,3 +199,17 @@ module.exports = function(app, passport, Food) {
 
 
 };
+
+// route middleware to make sure a user is logged in
+function isLoggedIn(req, res, next) {
+
+	console.log(req.isAuthenticated());
+
+    // if user is authenticated in the session, carry on 
+    if (req.isAuthenticated())
+        return next();
+
+    // if they aren't then provide an error 
+    res.json({ error: 'User is not logged in, please login.' });
+}
+
