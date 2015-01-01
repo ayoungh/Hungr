@@ -21,6 +21,18 @@ Create a frontend (single page app) with angular.js
 
 
 
+## TODO
+
+- [x] Basic rest routes created
+- [ ] Get Authentication of users working
+- [ ] Add auth checking to food items
+- [ ] Start coding the basic structure of the frontend app
+
+
+
+
+
+
 
 
 
