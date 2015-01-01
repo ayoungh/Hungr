@@ -19,8 +19,6 @@ Create a node.js server that will handle all of the data
 Create a frontend (single page app) with angular.js 
 
 
-
-
 ## TODO
 
 - [x] Basic rest routes created
