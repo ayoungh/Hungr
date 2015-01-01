@@ -14,6 +14,7 @@ Create a node.js server that will handle all of the data
 	/api/foods
 	/api/foods/food_id
 	/api/users
+	/api/users/user_id
 
 Create a frontend (single page app) with angular.js 
 
