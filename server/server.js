@@ -39,8 +39,8 @@ var passportConfig = require('./passport')(passport); // pass passport for confi
 
 
 //MODELS
-var Food = require('./models/food'); //load in our food model
-var User = require('./models/user'); //load in our user model
+var Food = require('./models/food.model'); //load in our food model
+var User = require('./models/user.model'); //load in our user model
 
 //ROUTES
 var routes = require('./routes/index.js')(app, passport, Food, User); // load our routes and pass in our app, passport (configured), Food model, User model

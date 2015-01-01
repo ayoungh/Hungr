@@ -3,9 +3,7 @@
 //Get express
 var express = require('express');
 
-//Get Models - not sure if this is the best way or passing in is better?
-//var Food = require('../models/food');
-
+//passing in app, passport and models
 module.exports = function(app, passport, Food, User) {
 
 	//give a response at root
