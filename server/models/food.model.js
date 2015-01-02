@@ -7,7 +7,9 @@ var Schema = mongoose.Schema;
 //define our schema
 var FoodSchema = new Schema({
     name : String,
-    image : String
+    image : String,
+    dateCreated : String,
+    dateModified : String,
 });
 
 //export

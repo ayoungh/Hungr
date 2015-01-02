@@ -10,6 +10,9 @@ var UserSchema = new Schema({
 
     username : String,
     isVerified : Boolean,
+    isAdmin : Boolean,
+    dateCreated : String,
+    dateModified : String,
     name : {
                 first: String,
                 last: String
