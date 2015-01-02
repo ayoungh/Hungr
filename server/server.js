@@ -16,6 +16,14 @@ var config = require('./config');
 //DB
 mongoose.connect(config.db);
 
+var db = mongoose.connection;
+db.on('error', console.error.bind(console, 'DB: connection error:'));
+db.once('open', function (callback) {
+  // yay!
+  console.log('DB: connection open');
+});
+
+
 //set our app as express
 var app = express();
 
