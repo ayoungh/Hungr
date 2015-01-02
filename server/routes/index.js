@@ -2,6 +2,7 @@
 
 //Get express
 var express = require('express');
+var moment = require('moment');
 
 //passing in app, passport and models
 module.exports = function(app, passport, Food, User) {
@@ -52,6 +53,7 @@ module.exports = function(app, passport, Food, User) {
 
 	        user.local.email = req.body.email; // set the email for the user (comes from the request)
 	        user.local.password = user.generateHash(req.body.password) // set the password for the user with obfuscation
+
 
 
 	        // save the user and check for errors
@@ -131,6 +133,10 @@ module.exports = function(app, passport, Food, User) {
 	        var food = new Food(); // create a new instance of the Food model
 	        food.name = req.body.name; // set the food name (comes from the request)
 	        food.image = req.body.image; //
+	        food.dateCreated = moment().unix();
+	        food.dateModified = moment().unix();
+
+	        console.log(moment().unix());
 
 	        // save the food and check for errors
 	        food.save(function(err) {
@@ -139,8 +145,7 @@ module.exports = function(app, passport, Food, User) {
 
 	            res.json({ 
 	            			message: 'Food created!',
-	            			name: food.name,
-		                	image: food.image
+		                	raw: food
 		                });
 	        });
 		});
@@ -163,6 +168,7 @@ module.exports = function(app, passport, Food, User) {
 	            food.name = req.body.name;  // update the food item info
 	            food.image = req.body.image; //
 	            //add an updated time using moment
+	            food.dateModified = moment().unix();
 
 	            // save the food
 	            food.save(function(err) {
@@ -171,8 +177,7 @@ module.exports = function(app, passport, Food, User) {
 
 	                res.json({ 
 			                	message: 'Food has been updated!',
-			                	name: food.name,
-			                	image: food.image
+			                	raw: food
 	                		});
 	            });
 
