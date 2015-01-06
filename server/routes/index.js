@@ -59,7 +59,18 @@ module.exports = function(app, passport, Food, User) {
 	        // save the user and check for errors
 	        user.save(function(err) {
 	            if (err)
-	                res.send(err);
+	                //res.send(err);
+
+	            	var errorMsg = err;
+	            	res.json({
+        				error: errorMsg
+            		});
+
+		            //on saving we are checking the users email is in db because we have added unique:true - see model
+		            if (err.code === 11000)
+	            		res.json({
+	        				error: 'Email address already found!' 
+	            		});
 
 	            res.json({ 
 	            			message: 'User created!',

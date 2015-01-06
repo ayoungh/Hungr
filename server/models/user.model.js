@@ -9,6 +9,7 @@ var bcrypt = require('bcrypt-nodejs');
 var UserSchema = new Schema({
 
     username : String,
+    email : { type: String, unique: true }, //this will check that no other accounts exist with same email when saving
     isVerified : Boolean,
     isAdmin : Boolean,
     dateCreated : String,
@@ -19,8 +20,7 @@ var UserSchema = new Schema({
             },
 
     local : {
-        email : String,
-        password : String,
+        password : String
     }
 
 });
