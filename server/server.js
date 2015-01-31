@@ -1,5 +1,6 @@
 //Dependencies 
 var express = require('express');
+var jwt = require('jwt-simple');
 var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
 var passport = require('passport');
