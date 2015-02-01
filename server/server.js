@@ -4,7 +4,7 @@ var jwt = require('jwt-simple');
 var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
 var passport = require('passport');
-var flash = require('connect-flash');
+//var flash = require('connect-flash');
 var cookieParser = require('cookie-parser');
 var session = require('express-session');
 
@@ -27,6 +27,7 @@ db.once('open', function (callback) {
 
 //set our app as express
 var app = express();
+module.exports.app = app;
 
 
 //Tell our app to use middlewares
@@ -42,18 +43,22 @@ app.use(session({
                  })); // session secret - get from config
 app.use(passport.initialize());
 app.use(passport.session()); // persistent login sessions
-app.use(flash()); // use connect-flash for flash messages stored in session
+//app.use(flash()); // use connect-flash for flash messages stored in session
 
 var passportConfig = require('./passport')(passport); // pass passport for configuration
 
+//CONTROLLERS
+//var auth = require('./controllers/auth');
+//var FoodCtrl = require('./controllers/food.controller');
+//var UserCtrl = require('./controllers/user.controller');
 
 //MODELS
-var Food = require('./models/food.model'); //load in our food model
-var User = require('./models/user.model'); //load in our user model
+//var Food = require('./models/food.model'); //load in our food model
+//var User = require('./models/user.model'); //load in our user model
 
 //ROUTES
-var routes = require('./routes/index.js')(app, passport, Food, User); // load our routes and pass in our app, passport (configured), Food model, User model
-
+var router = express.Router(); //define our router 
+var routes = require('./routes/index')(app, router); // load our routes and pass in our app, passport (configured), Food model, User model
 
 
 //set the port to use from config file
@@ -62,3 +67,6 @@ app.set('port', config.port);
 app.listen(app.get('port'), function() {
   console.log('Express server listening on port ' + app.get('port') + ' Started: ' + moment().format('MMMM Do YYYY, h:mm:ss a'));
 });
+
+
+
