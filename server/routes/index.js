@@ -24,35 +24,48 @@ module.exports = function(app, router) {
       res.json({ message:'Hungry World!'});
     });
 
+    //USERS
+
+    router.route('/login')
+        .get(AuthCtrl.getLogin) //check login is valid
+        .post(AuthCtrl.postLogin); //login        
+
+    router.route('/logout')
+        .get(AuthCtrl.getLogout) //invalidate jwt token    
+
+
+
+
+    //if admin maybe would use these? friends maybe? followers    
+
+    router.route('/users')  
+        .get(UserCtrl.getUsers)
+        .post(UserCtrl.postUser);
+
+
+    router.route('/users/:user_id')
+        .get(UserCtrl.getUser)  
+        .put(UserCtrl.updateUser)
+        .delete(UserCtrl.deleteUser);
+
+
+
+
 
     //FOODS
 
     // Create endpoint handlers for /foods
     router.route('/foods')
-      .post(FoodCtrl.postFood)
-      .get(FoodCtrl.getFoods);
+      .post(FoodCtrl.postFood) //post a new food
+      .get(FoodCtrl.getFoods); //get all foods
 
     //Create endpoint handlers for /foods/:food_id
     router.route('/foods/:food_id')
-      .get(FoodCtrl.getFood)
-      .put(FoodCtrl.updateFood)
-      .delete(FoodCtrl.deleteFood);
+      .get(FoodCtrl.getFood) //get food item
+      .put(FoodCtrl.updateFood) //update a food item
+      .delete(FoodCtrl.deleteFood); //delete food item
 
 
-    //USERS
-
-    router.route('/login')
-        .post(AuthCtrl.isAuthenticated, AuthCtrl.login);
-
-    router.route('/users')	
-    	.get(UserCtrl.getUsers)
-    	.post(UserCtrl.postUser);
-
-
-    router.route('/users/:user_id')
-    	.get(UserCtrl.getUser)	
-    	.put(UserCtrl.updateUser)
-    	.delete(UserCtrl.deleteUser);
 
 
 
@@ -62,12 +75,6 @@ module.exports = function(app, router) {
     });
       
 
-    //user profile
-    // router.route('/profile').get(isLoggedIn, function(req, res) {
-    //    res.json({
-    //        user : req.user // get the user out of session and pass to template
-    //    });
-    // });
 
 
     //append /api onto all router routes 
