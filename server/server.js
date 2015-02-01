@@ -36,13 +36,13 @@ app.use(bodyParser.json());
 app.use(cookieParser());
 
 // required for passport
-app.use(session({
-					secret: config.sessionSecret, 
-                 	saveUninitialized: true,
-                 	resave: true 
-                 })); // session secret - get from config
-app.use(passport.initialize());
-app.use(passport.session()); // persistent login sessions
+//app.use(session({
+//					secret: config.sessionSecret, 
+//                 	saveUninitialized: true,
+//                 	resave: true 
+//                 })); // session secret - get from config
+//app.use(passport.initialize());
+//app.use(passport.session()); // persistent login sessions
 //app.use(flash()); // use connect-flash for flash messages stored in session
 
 var passportConfig = require('./passport')(passport); // pass passport for configuration

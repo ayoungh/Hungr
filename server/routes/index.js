@@ -6,6 +6,7 @@ var moment = require('moment');
 
 //CONTROLLERS
 //var auth = require('./controllers/auth');
+var AuthCtrl = require('../controllers/auth.controller');
 var FoodCtrl = require('../controllers/food.controller');
 var UserCtrl = require('../controllers/user.controller');
 
@@ -39,6 +40,10 @@ module.exports = function(app, router) {
 
 
     //USERS
+
+    router.route('/login')
+        .post(AuthCtrl.isAuthenticated, AuthCtrl.login);
+
     router.route('/users')	
     	.get(UserCtrl.getUsers)
     	.post(UserCtrl.postUser);

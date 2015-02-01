@@ -8,6 +8,16 @@ var moment = require('moment');
 var User = require('../models/user.model'); //load in our user model
 
 
+//module.exports.loginUser
+
+
+
+
+
+
+
+
+
 module.exports.getUsers = function (req, res) { //get all the users
 	User.find(function(err, user) {
 	    if (err)
@@ -20,35 +30,60 @@ module.exports.getUsers = function (req, res) { //get all the users
 module.exports.postUser = function (req, res) { //post a user item
     var user = new User(); // create a new instance of the User model
 
-    console.log('user is :', user);
+    console.log('init user:', user);
 
-    user.local.email = req.body.email; // set the email for the user (comes from the request)
-    user.local.password = user.generateHash(req.body.password) // set the password for the user with obfuscation
+    //check for an email and password
+    var data = {};
 
+    if (req.body.email && req.body.password) {
 
+        //define each in our user
+        user.email = req.body.email; // set the email for the user (comes from the request)
+        //we use the method in the model to hash the password
+        user.local.password = user.generateHash(req.body.password) // set the password for the user with obfuscation
 
-    // save the user and check for errors
-    user.save(function(err) {
-        if (err)
-            //res.send(err);
+        //check the email is valid before trying to save:
+        if (!user.validEmail(req.body.email)) {
+            data.error = 'Email address not valid!';
+            res.json(data);
+        } else {
 
-        	var errorMsg = err;
-        	res.json({
-				error: errorMsg
-    		});
+            // save the user and check for errors
+            user.save(function(err) {
+                   
+                if (err) {
+                    console.log('ERROR:');
+                    console.dir(err);
+                    //on saving we are checking the users email is in db because we have added unique:true - see model
+                    if (err.code) {
+                        console.log('err.code found');
+                        if (err.code === 11000) {
+                            console.log('err.code === 11000');
 
-            //on saving we are checking the users email is in db because we have added unique:true - see model
-            if (err.code === 11000)
-        		res.json({
-    				error: 'Email address already found!' 
-        		});
+                            data.error = 'Email address already found!' 
+                            res.json(data);
+                        }
+                    }
+                } else {
+                    console.log('Save user')
+                    data = { 
+                            message: 'User created!',
+                            email: user.email,
+                            password: user.local.password
+                        };
+                    res.json(data);
+                }
+                
+            });
 
-            res.json({ 
-        			message: 'User created!',
-        			email: user.local.email,
-                	password: user.local.password
-                });
-    });
+        }
+
+    } else {
+        data.error = 'no email or password'  
+        res.json(data);
+    }
+
+    
 };
 
 module.exports.getUser = function(req, res) { //get the individual user item by id

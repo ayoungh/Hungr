@@ -3,7 +3,12 @@
 //Dependencies 
 var jwt = require('jwt-simple');
 var moment = require('moment');
+var bcrypt = require('bcrypt-nodejs');
 var config = require('../config');
+
+//MODEL
+var User = require('../models/user.model'); //load in our user model
+
 
 //Create JWT token using user id
 module.exports.createToken = function createTokenfn(user) {
@@ -18,11 +23,37 @@ module.exports.createToken = function createTokenfn(user) {
 
 
 
+module.exports.login = function loginfn(req, res) {
+    User.findOne({ email: req.body.email }, '+password', function(err, user) {
+        if (!user) {
+          return res.json({ message: { email: 'Incorrect email' } });
+        }
+
+        bcrypt.compare(req.body.password, user.password, function(err, isMatch) {
+            if (!isMatch) {
+                return res.json({ message: { password: 'Incorrect password' } });
+            }
+
+            user = user.toObject();
+            delete user.password;
+
+            var token = createToken(user);
+            res.json({ token: token, user: user });
+        });
+    });
+};
+
+
 
 //check if the user is authenticated 
 module.exports.isAuthenticated = function isAuthenticatedfn(req, res, next) {
+    console.log('isAuthenticated..');
+
+
+  //check if no heders and no authorization
   if (!(req.headers && req.headers.authorization)) {
-    return res.status(400).send({ message: 'You did not provide a JSON Web Token in the Authorization header.' });
+    console.log('no headers or no authorization');
+    return res.json({ message: 'You did not provide a JSON Web Token in the Authorization header.' }); //status(400).send
   }
  
   var header = req.headers.authorization.split(' ');
@@ -31,18 +62,20 @@ module.exports.isAuthenticated = function isAuthenticatedfn(req, res, next) {
   var now = moment().unix();
  
   if (now && payload.exp) {
-    return res.status(401).send({ message: 'Token has expired.' });
+    console.log('now and payload.exp')
+    return res.json({ message: 'Token has expired.' });
   }
  
   User.findById(payload.sub, function(err, user) {
+    console.log('user: ', user)
     if (!user) {
-      return res.status(400).send({ message: 'User no longer exists.' });
+      return res.json({ message: 'User no longer exists.' });
     }
  
     req.user = user;
     next();
-  })
-}
+  });
+};
 
 
 
