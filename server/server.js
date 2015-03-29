@@ -2,6 +2,7 @@
 var express = require('express');
 var logger = require('morgan');
 var jwt = require('jwt-simple');
+var expressJwt = require('express-jwt');
 var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
 var session = require('express-session');
@@ -37,6 +38,8 @@ app.use(logger('dev'));
 app.use( bodyParser.urlencoded({ extended: true }) );
 app.use(bodyParser.json());
 app.use(cookieParser());
+//config expressJWT
+app.use(expressJwt({ secret: config.tokenSecret }).unless({ path: [ '/test' ]}));
 
 // required for passport
 app.use(session({
@@ -52,6 +55,11 @@ var passportConfig = require('./passport');//(passport); // pass passport for co
 
 
 //ROUTES
+
+app.get('/test', function (req, res) {
+  res.json({'message':'test get request'});
+});
+
 var router = express.Router(); //define our router 
 var routes = require('./routes/index')(app, router); // load our routes and pass in our app, passport (configured), Food model, User model
 
@@ -65,6 +73,21 @@ app.listen(app.get('port'), function() {
   console.log('Express server listening on port ' + app.get('port') + ' - ' + app.get('env'));
   console.log('Started: ' + moment().format('MMMM Do YYYY, h:mm:ss a'));
 });
+
+
+
+// UTIL FUNCTIONS
+
+function authenticate(req, res, next) {
+  var body = req.body;
+  if (!body.username || !body.password) {
+    res.status(400).end('Must provide username or password');
+  } else if (body.username !== 'ayoungh' || body.password !== 'password') {
+    res.status(401).end('Username or password incorrect');
+  } else {
+    next();
+  }
+}
 
 
 
