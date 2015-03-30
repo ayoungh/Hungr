@@ -1,8 +1,10 @@
 //Dependencies 
 var express = require('express');
 var logger = require('morgan');
-var jwt = require('jwt-simple');
+//var jwt = require('jwt-simple');
+var jwt = require('jsonwebtoken');
 var expressJwt = require('express-jwt');
+var cors = require('cors');
 var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
 var session = require('express-session');
@@ -34,12 +36,13 @@ var app = express();
 
 
 //Tell our app to use middlewares
+app.use(cors());
 app.use(logger('dev'));
 app.use( bodyParser.urlencoded({ extended: true }) );
 app.use(bodyParser.json());
 app.use(cookieParser());
 //config expressJWT
-app.use(expressJwt({ secret: config.tokenSecret }).unless({ path: [ '/test' ]}));
+app.use(expressJwt({ secret: config.tokenSecret }).unless({ path: [ '/api/auth' ]}));
 
 // required for passport
 app.use(session({
@@ -56,9 +59,27 @@ var passportConfig = require('./passport');//(passport); // pass passport for co
 
 //ROUTES
 
-app.get('/test', function (req, res) {
-  res.json({'message':'test get request'});
+app.get('/api/auth', function (req, res) {
+
+  res.json({
+    'message':'test get request'
+  });
+
 });
+
+app.post('/api/auth', function (req, res) {
+
+  var token = jwt.sign({
+    username: 'username'
+  }, config.tokenSecret);
+
+  res.json({
+    'message':'test post request'
+    ,'token': config.tokenSecret
+  });
+
+});
+
 
 var router = express.Router(); //define our router 
 var routes = require('./routes/index')(app, router); // load our routes and pass in our app, passport (configured), Food model, User model
