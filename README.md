@@ -1,7 +1,13 @@
 Hungr
 =====
 
-A node web app for sharing what food you enjoy with friends and family.
+A Node web app for sharing what food you enjoy with friends and family.
+
+## 2025 update
+
+Dependencies and server configuration have been refreshed to work with modern
+versions of Node.js (tested with Node 20) and MongoDB. See `package.json` for
+the updated dependency list.
 
 The idea of this is to learn node.js and angular.js by creating an app to share food with friends and family. I love food and like trying new foods, but want to be able to share these new foods with friends and family without the usual instagram upload.
 

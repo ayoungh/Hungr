@@ -90,14 +90,13 @@ module.exports.updateFood = function(req, res) { //update the individual food it
 };
 
 module.exports.deleteFood = function(req, res) { //delete the food by id
-	Food.remove({
-	    _id: req.params.food_id
-	}, function(err, food) {
-	    if (err)
-	        res.send(err);
+  Food.findByIdAndDelete(req.params.food_id, function(err) {
+    if (err) {
+      return res.send(err);
+    }
 
-	    res.json({ message: 'Successfully deleted food item' });
-	});
+    res.json({ message: 'Successfully deleted food item' });
+  });
 };
 
 

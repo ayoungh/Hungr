@@ -3,7 +3,7 @@ var express = require('express');
 var logger = require('morgan');
 //var jwt = require('jwt-simple');
 var jwt = require('jsonwebtoken');
-var expressJwt = require('express-jwt');
+var { expressjwt: jwtMiddleware } = require('express-jwt');
 var cors = require('cors');
 var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
@@ -42,7 +42,11 @@ app.use( bodyParser.urlencoded({ extended: true }) );
 app.use(bodyParser.json());
 app.use(cookieParser());
 //config expressJWT
-app.use(expressJwt({ secret: config.tokenSecret }).unless({ path: [ '/api/auth' ]}));
+app.use(
+  jwtMiddleware({ secret: config.tokenSecret, algorithms: ['HS256'] }).unless({
+    path: ['/api/auth'],
+  })
+);
 
 // required for passport
 app.use(session({
@@ -75,7 +79,7 @@ app.post('/api/auth', function (req, res) {
 
   res.json({
     'message':'test post request'
-    ,'token': config.tokenSecret
+    ,'token': token
   });
 
 });

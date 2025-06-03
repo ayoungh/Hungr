@@ -91,11 +91,9 @@ router.route('/users/:user_id') //http://localhost:PORT/api/users/:user_id
         });
     })
     .delete(function(req, res) { //delete the user by id
-        User.remove({
-            _id: req.params.user_id
-        }, function(err, food) {
+        User.findByIdAndDelete(req.params.user_id, function(err) {
             if (err)
-                res.send(err);
+                return res.send(err);
 
             res.json({ message: 'Successfully deleted user' });
         });

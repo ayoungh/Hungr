@@ -83,11 +83,9 @@ router.route('/foods/:food_id') //http://localhost:PORT/api/foods/:food_id
         });
     })
     .delete(function(req, res) { //delete teh food by id
-        Food.remove({
-            _id: req.params.food_id
-        }, function(err, food) {
+        Food.findByIdAndDelete(req.params.food_id, function(err) {
             if (err)
-                res.send(err);
+                return res.send(err);
 
             res.json({ message: 'Successfully deleted food item' });
         });

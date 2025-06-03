@@ -1,9 +1,9 @@
 //CONTROLLER
 
 //Dependencies 
-var jwt = require('jwt-simple');
+var jwt = require('jsonwebtoken');
 var moment = require('moment');
-var bcrypt = require('bcrypt-nodejs');
+var bcrypt = require('bcryptjs');
 var config = require('../config');
 
 //MODEL
@@ -12,13 +12,11 @@ var User = require('../models/user.model'); //load in our user model
 
 //Create JWT token using user id
 module.exports.createToken = function createTokenfn(user) {
-  var payload = {
-    exp: moment().add(14, 'days').unix(),
-    iat: moment().unix(),
-    sub: user._id
-  };
- 
-  return jwt.encode(payload, config.tokenSecret);
+  return jwt.sign(
+    { sub: user._id },
+    config.tokenSecret,
+    { expiresIn: '14d' }
+  );
 }
 
 
