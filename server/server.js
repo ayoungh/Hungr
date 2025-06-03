@@ -3,7 +3,7 @@ var express = require('express');
 var logger = require('morgan');
 //var jwt = require('jwt-simple');
 var jwt = require('jsonwebtoken');
-var expressJwt = require('express-jwt');
+var { expressjwt: jwtMiddleware } = require('express-jwt');
 var cors = require('cors');
 var bodyParser = require('body-parser');
 var mongoose = require('mongoose');
@@ -20,14 +20,14 @@ var config = require('./config');
 
 
 //DB
-mongoose.connect(config.db);
-
-var db = mongoose.connection;
-db.on('error', console.error.bind(console, 'DB: connection error:'));
-db.once('open', function (callback) {
-  // yay!
-  console.log('DB: connection open');
-});
+console.log('Connecting to MongoDB at ' + config.db);
+mongoose.connect(config.db)
+  .then(function () {
+    console.log('MongoDB connection established');
+  })
+  .catch(function (err) {
+    console.error('MongoDB connection error:', err.message);
+  });
 
 
 //set our app as express
@@ -42,7 +42,11 @@ app.use( bodyParser.urlencoded({ extended: true }) );
 app.use(bodyParser.json());
 app.use(cookieParser());
 //config expressJWT
-app.use(expressJwt({ secret: config.tokenSecret }).unless({ path: [ '/api/auth' ]}));
+app.use(
+  jwtMiddleware({ secret: config.tokenSecret, algorithms: ['HS256'] }).unless({
+    path: ['/api/auth'],
+  })
+);
 
 // required for passport
 app.use(session({
@@ -75,7 +79,7 @@ app.post('/api/auth', function (req, res) {
 
   res.json({
     'message':'test post request'
-    ,'token': config.tokenSecret
+    ,'token': token
   });
 
 });
@@ -93,6 +97,12 @@ app.set('port', config.port);
 app.listen(app.get('port'), function() {
   console.log('Express server listening on port ' + app.get('port') + ' - ' + app.get('env'));
   console.log('Started: ' + moment().format('MMMM Do YYYY, h:mm:ss a'));
+});
+
+// generic error handler to stop the server crashing on unhandled errors
+app.use(function(err, req, res, next) {
+  console.error(err.stack);
+  res.status(500).json({ error: 'Internal Server Error' });
 });
 
 

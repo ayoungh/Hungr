@@ -123,12 +123,11 @@ module.exports.updateUser = function(req, res) { //update the individual user it
 
 
 module.exports.deleteUser = function(req, res) { //delete the user by id
-    User.remove({
-        _id: req.params.user_id
-    }, function(err, food) {
-        if (err)
-            res.send(err);
+  User.findByIdAndDelete(req.params.user_id, function(err) {
+    if (err) {
+      return res.send(err);
+    }
 
-        res.json({ message: 'Successfully deleted user' });
-    });
+    res.json({ message: 'Successfully deleted user' });
+  });
 };

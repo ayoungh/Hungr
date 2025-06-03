@@ -3,7 +3,7 @@
 //Dependencies
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
-var bcrypt = require('bcrypt-nodejs');
+var bcrypt = require('bcryptjs');
 
 
 var UserSchema = new Schema({
@@ -44,7 +44,7 @@ var UserSchema = new Schema({
 //Methods
 // generating a hash
 UserSchema.methods.generateHash = function(password) {
-    return bcrypt.hashSync(password, bcrypt.genSaltSync(8), null);
+    return bcrypt.hashSync(password, bcrypt.genSaltSync(8));
 };
 
 // checking if password is valid
