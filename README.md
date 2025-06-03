@@ -52,12 +52,23 @@ curl -H "Authorization: Bearer <token>" http://localhost:3000/api/foods
 
 Include the same header when creating or updating food items.
 
+## Using MongoDB
 
+The server connects to MongoDB using the connection string defined in
+`server/config.js`. By default this is
+`mongodb://localhost:27017/hungrdb`.
 
+1. Install MongoDB and start a local instance, e.g.
 
+   ```bash
+   mongod --dbpath /path/to/your/db
+   ```
 
+2. Optionally set the `db` environment variable if you want to use a
+   different connection string:
 
+   ```bash
+   DB="mongodb://username:password@host:port/dbname" npm run start
+   ```
 
-
-
-
+Ensure MongoDB is running before launching the server.
