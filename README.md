@@ -7,7 +7,9 @@ A Node web app for sharing what food you enjoy with friends and family.
 
 Dependencies and server configuration have been refreshed to work with modern
 versions of Node.js (tested with Node 20) and MongoDB. See `package.json` for
-the updated dependency list.
+the updated dependency list. Mongoose no longer requires the deprecated
+`useNewUrlParser` and `useUnifiedTopology` options, so the server connects using
+the defaults to avoid driver warnings.
 
 The idea of this is to learn node.js and angular.js by creating an app to share food with friends and family. I love food and like trying new foods, but want to be able to share these new foods with friends and family without the usual instagram upload.
 

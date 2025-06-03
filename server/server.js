@@ -21,7 +21,7 @@ var config = require('./config');
 
 //DB
 console.log('Connecting to MongoDB at ' + config.db);
-mongoose.connect(config.db, { useNewUrlParser: true, useUnifiedTopology: true })
+mongoose.connect(config.db)
   .then(function () {
     console.log('MongoDB connection established');
   })
