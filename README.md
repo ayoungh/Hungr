@@ -72,3 +72,6 @@ The server connects to MongoDB using the connection string defined in
    ```
 
 Ensure MongoDB is running before launching the server.
+
+When the server starts you should see log messages indicating the connection
+string and whether the connection succeeded or failed.

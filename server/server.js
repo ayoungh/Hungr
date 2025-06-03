@@ -20,14 +20,14 @@ var config = require('./config');
 
 
 //DB
-mongoose.connect(config.db);
-
-var db = mongoose.connection;
-db.on('error', console.error.bind(console, 'DB: connection error:'));
-db.once('open', function (callback) {
-  // yay!
-  console.log('DB: connection open');
-});
+console.log('Connecting to MongoDB at ' + config.db);
+mongoose.connect(config.db, { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(function () {
+    console.log('MongoDB connection established');
+  })
+  .catch(function (err) {
+    console.error('MongoDB connection error:', err.message);
+  });
 
 
 //set our app as express
