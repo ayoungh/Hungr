@@ -32,6 +32,26 @@ Create a frontend (single page app) with angular.js
 - [ ] Add auth checking to food items
 - [ ] Start coding the basic structure of the frontend app
 
+## Authentication
+
+The server exposes `/api/auth` which returns a JSON Web Token (JWT). Make a POST
+request to this endpoint and the response will include a `token` field.
+
+Example using `curl`:
+
+```bash
+curl -X POST http://localhost:3000/api/auth
+```
+
+Use the returned token in the `Authorization` header (as `Bearer <token>`) when
+calling other API routes. For instance, to fetch all foods:
+
+```bash
+curl -H "Authorization: Bearer <token>" http://localhost:3000/api/foods
+```
+
+Include the same header when creating or updating food items.
+
 
 
 

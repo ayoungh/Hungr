@@ -99,6 +99,12 @@ app.listen(app.get('port'), function() {
   console.log('Started: ' + moment().format('MMMM Do YYYY, h:mm:ss a'));
 });
 
+// generic error handler to stop the server crashing on unhandled errors
+app.use(function(err, req, res, next) {
+  console.error(err.stack);
+  res.status(500).json({ error: 'Internal Server Error' });
+});
+
 
 
 // UTIL FUNCTIONS
