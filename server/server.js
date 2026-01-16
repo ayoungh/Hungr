@@ -1,45 +1,42 @@
-//Dependencies 
-var express = require('express');
-var logger = require('morgan');
-//var jwt = require('jwt-simple');
-var jwt = require('jsonwebtoken');
-var { expressjwt: jwtMiddleware } = require('express-jwt');
-var cors = require('cors');
-var bodyParser = require('body-parser');
-var mongoose = require('mongoose');
-var session = require('express-session');
-var cookieParser = require('cookie-parser');
-var passport = require('passport');
+//Dependencies
+const express = require('express');
+const logger = require('morgan');
+//const jwt = require('jwt-simple');
+const jwt = require('jsonwebtoken');
+const { expressjwt: jwtMiddleware } = require('express-jwt');
+const cors = require('cors');
+const mongoose = require('mongoose');
+const session = require('express-session');
+const cookieParser = require('cookie-parser');
+const passport = require('passport');
 
-
-
-var moment = require('moment');
+const moment = require('moment');
 
 //get configs
-var config = require('./config');
+const config = require('./config');
 
 
 //DB
-console.log('Connecting to MongoDB at ' + config.db);
+console.log(`Connecting to MongoDB at ${config.db}`);
 mongoose.connect(config.db)
-  .then(function () {
+  .then(() => {
     console.log('MongoDB connection established');
   })
-  .catch(function (err) {
+  .catch((err) => {
     console.error('MongoDB connection error:', err.message);
   });
 
 
 //set our app as express
-var app = express();
+const app = express();
 //module.exports.app = app;
 
 
 //Tell our app to use middlewares
 app.use(cors());
 app.use(logger('dev'));
-app.use( bodyParser.urlencoded({ extended: true }) );
-app.use(bodyParser.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 app.use(cookieParser());
 //config expressJWT
 app.use(
@@ -50,43 +47,39 @@ app.use(
 
 // required for passport
 app.use(session({
-					secret: config.sessionSecret, 
-                	saveUninitialized: true,
-                	resave: true 
-                })); // session secret - get from config
+  secret: config.sessionSecret,
+  saveUninitialized: true,
+  resave: true,
+})); // session secret - get from config
 app.use(passport.initialize());
 app.use(passport.session()); // persistent login sessions
 
 
-var passportConfig = require('./passport');//(passport); // pass passport for configuration
+const passportConfig = require('./passport'); //(passport); // pass passport for configuration
 
 
 //ROUTES
 
-app.get('/api/auth', function (req, res) {
-
+app.get('/api/auth', (req, res) => {
   res.json({
-    'message':'test get request'
+    message: 'test get request',
   });
-
 });
 
-app.post('/api/auth', function (req, res) {
-
-  var token = jwt.sign({
-    username: 'username'
+app.post('/api/auth', (req, res) => {
+  const token = jwt.sign({
+    username: 'username',
   }, config.tokenSecret);
 
   res.json({
-    'message':'test post request'
-    ,'token': token
+    message: 'test post request',
+    token,
   });
-
 });
 
 
-var router = express.Router(); //define our router 
-var routes = require('./routes/index')(app, router); // load our routes and pass in our app, passport (configured), Food model, User model
+const router = express.Router(); //define our router
+const routes = require('./routes/index')(app, router); // load our routes and pass in our app, passport (configured), Food model, User model
 
 
 //set the port to use from config file
@@ -94,13 +87,13 @@ app.set('port', config.port);
 
 //app.use(errorHandler());
 
-app.listen(app.get('port'), function() {
-  console.log('Express server listening on port ' + app.get('port') + ' - ' + app.get('env'));
-  console.log('Started: ' + moment().format('MMMM Do YYYY, h:mm:ss a'));
+app.listen(app.get('port'), () => {
+  console.log(`Express server listening on port ${app.get('port')} - ${app.get('env')}`);
+  console.log(`Started: ${moment().format('MMMM Do YYYY, h:mm:ss a')}`);
 });
 
 // generic error handler to stop the server crashing on unhandled errors
-app.use(function(err, req, res, next) {
+app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({ error: 'Internal Server Error' });
 });
@@ -110,7 +103,7 @@ app.use(function(err, req, res, next) {
 // UTIL FUNCTIONS
 
 function authenticate(req, res, next) {
-  var body = req.body;
+  const body = req.body;
   if (!body.username || !body.password) {
     res.status(400).end('Must provide username or password');
   } else if (body.username !== 'ayoungh' || body.password !== 'password') {
@@ -119,6 +112,5 @@ function authenticate(req, res, next) {
     next();
   }
 }
-
 
 
