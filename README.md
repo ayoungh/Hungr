@@ -3,7 +3,11 @@ Hungr
 
 A Node web app for sharing what food you enjoy with friends and family.
 
-## 2025 update
+## 2026 update
+
+The server now uses modern middleware defaults (Helmet, rate limiting, and
+JWT auth), plus Swagger-based API docs with an Orval-generated Axios client.
+The frontend has been migrated to a Next.js app under `client/`.
 
 Dependencies and server configuration have been refreshed to work with modern
 versions of Node.js (tested with Node 20) and MongoDB. See `package.json` for
