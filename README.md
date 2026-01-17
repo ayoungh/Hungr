@@ -130,6 +130,10 @@ cd client
 npm run dev
 ```
 
+## CI
+
+GitHub Actions runs `npm test` for API endpoint coverage on pull requests and main.
+
 ## Health Check
 
 `GET /healthz` returns the server status and MongoDB connection state.
