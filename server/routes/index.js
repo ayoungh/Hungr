@@ -28,7 +28,7 @@ module.exports = function(app, router) {
 
     router.route('/login')
         .get(AuthCtrl.getLogin) //check login is valid
-        .post(AuthCtrl.postLogin); //login        
+        .post(AuthCtrl.postLogin); //login
 
     router.route('/logout')
         .get(AuthCtrl.getLogout) //invalidate jwt token    
@@ -38,15 +38,15 @@ module.exports = function(app, router) {
 
     //if admin maybe would use these? friends maybe? followers    
 
-    router.route('/users')  
-        .get(UserCtrl.getUsers)
+    router.route('/users')
+        .get(AuthCtrl.requireAuth, UserCtrl.getUsers)
         .post(UserCtrl.postUser);
 
 
     router.route('/users/:user_id')
-        .get(UserCtrl.getUser)  
-        .put(UserCtrl.updateUser)
-        .delete(UserCtrl.deleteUser);
+        .get(AuthCtrl.requireAuth, UserCtrl.getUser)
+        .put(AuthCtrl.requireAuth, UserCtrl.updateUser)
+        .delete(AuthCtrl.requireAuth, UserCtrl.deleteUser);
 
 
 
@@ -56,14 +56,14 @@ module.exports = function(app, router) {
 
     // Create endpoint handlers for /foods
     router.route('/foods')
-      .post(FoodCtrl.postFood) //post a new food
-      .get(FoodCtrl.getFoods); //get all foods
+      .post(AuthCtrl.requireAuth, FoodCtrl.postFood) //post a new food
+      .get(AuthCtrl.requireAuth, FoodCtrl.getFoods); //get all foods
 
     //Create endpoint handlers for /foods/:food_id
     router.route('/foods/:food_id')
-      .get(FoodCtrl.getFood) //get food item
-      .put(FoodCtrl.updateFood) //update a food item
-      .delete(FoodCtrl.deleteFood); //delete food item
+      .get(AuthCtrl.requireAuth, FoodCtrl.getFood) //get food item
+      .put(AuthCtrl.requireAuth, FoodCtrl.updateFood) //update a food item
+      .delete(AuthCtrl.requireAuth, FoodCtrl.deleteFood); //delete food item
 
 
 

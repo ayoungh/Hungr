@@ -17,27 +17,73 @@ module.exports.createToken = function createTokenfn(user) {
     config.tokenSecret,
     { expiresIn: '14d' }
   );
-}
-
-
-
-module.exports.getLogin  = function(req, res) {
-    //check that the current user is logged in else return that the user needs to login
-    //req.user
 };
 
-module.exports.postLogin = function(req, res, next) {
+module.exports.requireAuth = function requireAuth(req, res, next) {
+  const header = req.headers.authorization;
+  if (!header) {
+    return res.status(401).json({ error: 'Authorization header missing.' });
+  }
 
-    //use passport to authenticate and check the login details
-    next();
+  const parts = header.split(' ');
+  if (parts.length !== 2 || parts[0] !== 'Bearer') {
+    return res.status(401).json({ error: 'Authorization header must be Bearer token.' });
+  }
 
+  const token = parts[1];
+  try {
+    const payload = jwt.verify(token, config.tokenSecret);
+    req.userId = payload.sub;
+    return next();
+  } catch (err) {
+    return res.status(401).json({ error: 'Invalid or expired token.' });
+  }
+};
+
+
+
+module.exports.getLogin = function(req, res) {
+  res.status(405).json({ error: 'Use POST /api/login to authenticate.' });
+};
+
+module.exports.postLogin = async function(req, res) {
+  const email = req.body.email;
+  const password = req.body.password;
+
+  if (!email || !password) {
+    return res.status(400).json({ error: 'Email and password are required.' });
+  }
+
+  try {
+    const user = await User.findOne({ email: email.toLowerCase() });
+    if (!user.local || !user.local.password) {
+      return res.status(401).json({ error: 'Invalid credentials.' });
+    }
+    if (!user) {
+      return res.status(401).json({ error: 'Invalid credentials.' });
+    }
+
+    const isValid = user.validPassword(password);
+    if (!isValid) {
+      return res.status(401).json({ error: 'Invalid credentials.' });
+    }
+
+    const token = module.exports.createToken(user);
+    res.json({
+      token: token,
+      user: {
+        id: user._id,
+        email: user.email
+      }
+    });
+  } catch (err) {
+    console.error('Login error:', err);
+    return res.status(500).json({ error: 'Login failed.', details: err.message || err });
+  }
 };
 
 module.exports.getLogout = function(req, res) {
-
-    //logout the user by clearing the users jwt token?
-
-
+  res.status(200).json({ message: 'Logged out.' });
 };
 
 

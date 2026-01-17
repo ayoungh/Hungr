@@ -30,8 +30,10 @@ Create a frontend (single page app) with angular.js
 ## TODO
 
 - [x] Basic rest routes created
-- [ ] Get Authentication of users working
-- [ ] Add auth checking to food items
+- [x] Document setup and environment config
+- [x] Add API logging mode for debugging
+- [x] Get Authentication of users working
+- [x] Add auth checking to food items
 - [ ] Start coding the basic structure of the frontend app
 
 ## Setup
@@ -72,17 +74,19 @@ The server listens on `port` (defaults to `3000`).
 
 ## Authentication
 
-The server exposes `/api/auth` which returns a JSON Web Token (JWT). Make a POST
-request to this endpoint and the response will include a `token` field.
+Create a user with `POST /api/users`, then log in with `POST /api/login` to
+receive a JSON Web Token (JWT).
 
-Example using `curl`:
+Example login using `curl`:
 
 ```bash
-curl -X POST http://localhost:3000/api/auth
+curl -X POST http://localhost:3000/api/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"you@example.com","password":"secret"}'
 ```
 
 Use the returned token in the `Authorization` header (as `Bearer <token>`) when
-calling other API routes. For instance, to fetch all foods:
+calling protected API routes. For instance, to fetch all foods:
 
 ```bash
 curl -H "Authorization: Bearer <token>" http://localhost:3000/api/foods

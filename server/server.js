@@ -3,7 +3,6 @@ const express = require('express');
 const logger = require('morgan');
 //const jwt = require('jwt-simple');
 const jwt = require('jsonwebtoken');
-const { expressjwt: jwtMiddleware } = require('express-jwt');
 const cors = require('cors');
 const mongoose = require('mongoose');
 const session = require('express-session');
@@ -70,12 +69,6 @@ if (config.apiLogging) {
     next();
   });
 }
-//config expressJWT
-app.use(
-  jwtMiddleware({ secret: config.tokenSecret, algorithms: ['HS256'] }).unless({
-    path: ['/api/auth'],
-  })
-);
 
 // required for passport
 app.use(session({

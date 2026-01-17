@@ -20,7 +20,7 @@ var User = require('../models/user.model'); //load in our user model
 
 module.exports.getUsers = async function (req, res) { //get all the users
 	try {
-	    const user = await User.find();
+	    const user = await User.find().select('email username');
 	    res.json(user);
 	} catch (err) {
 	    res.send(err);
@@ -32,51 +32,49 @@ module.exports.postUser = async function (req, res) { //post a user item
 
     console.log('init user:', user);
 
-    //check for an email and password
-    var data = {};
+    const email = req.body.email;
+    const password = req.body.password;
 
-    if (req.body.email && req.body.password) {
-
-        //define each in our user
-        user.email = req.body.email; // set the email for the user (comes from the request)
-        //we use the method in the model to hash the password
-        user.local.password = user.generateHash(req.body.password); // set the password for the user with obfuscation
-
-        //check the email is valid before trying to save:
-        if (!user.validEmail(req.body.email)) {
-            data.error = 'Email address not valid!';
-            return res.json(data);
-        }
-
-        // save the user and check for errors
-        try {
-            await user.save();
-            console.log('Save user');
-            data = {
-                message: 'User created!',
-                email: user.email,
-                password: user.local.password
-            };
-            return res.json(data);
-        } catch (err) {
-            console.log('ERROR:');
-            console.dir(err);
-            //on saving we are checking the users email is in db because we have added unique:true - see model
-            if (err.code === 11000) {
-                data.error = 'Email address already found!';
-                return res.json(data);
-            }
-            return res.status(500).json({ error: 'Error saving user', raw: err });
-        }
+    if (!email || !password) {
+        return res.status(400).json({ error: 'Email and password are required.' });
     }
 
-    data.error = 'no email or password';
-    return res.json(data);
+    if (!user.validEmail(email)) {
+        return res.status(400).json({ error: 'Email address not valid!' });
+    }
+
+    if (password.length < 8) {
+        return res.status(400).json({ error: 'Password must be at least 8 characters.' });
+    }
+
+    //define each in our user
+    user.email = email; // set the email for the user (comes from the request)
+    user.username = email.toLowerCase();
+    //we use the method in the model to hash the password
+    user.local.password = user.generateHash(password); // set the password for the user with obfuscation
+
+    // save the user and check for errors
+    try {
+        await user.save();
+        console.log('Save user');
+        return res.json({
+            message: 'User created!',
+            email: user.email
+        });
+    } catch (err) {
+        console.log('ERROR:');
+        console.dir(err);
+        //on saving we are checking the users email is in db because we have added unique:true - see model
+        if (err.code === 11000) {
+            return res.status(400).json({ error: 'Email address already found!' });
+        }
+        return res.status(500).json({ error: 'Error saving user', raw: err });
+    }
 };
 
 module.exports.getUser = async function(req, res) { //get the individual user item by id
     try {
-        const user = await User.findById(req.params.user_id); //find the user model by id
+        const user = await User.findById(req.params.user_id).select('email username'); //find the user model by id
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
@@ -95,17 +93,27 @@ module.exports.updateUser = async function(req, res) { //update the individual u
             return res.status(404).json({ message: 'User not found' });
         }
 
-        user.local.email = req.body.email;  // update the user item info
-        user.local.password = user.generateHash(req.body.password); // set the password for the user with obfuscation
-        //add an updated time using moment
+        if (req.body.email) {
+            if (!user.validEmail(req.body.email)) {
+                return res.status(400).json({ error: 'Email address not valid!' });
+            }
+            user.email = req.body.email;
+            user.username = req.body.email.toLowerCase();
+        }
+        if (req.body.password) {
+            if (req.body.password.length < 8) {
+                return res.status(400).json({ error: 'Password must be at least 8 characters.' });
+            }
+            user.local.password = user.generateHash(req.body.password); // set the password for the user with obfuscation
+        }
 
         // save the food
         await user.save();
 
         res.json({
             message: 'User has been updated!',
-            email: user.local.email,
-            password: user.local.password
+            email: user.email,
+            username: user.username
         });
     } catch (err) {
         return res.send(err);
