@@ -106,6 +106,17 @@ Include the same header when creating or updating food items.
 Swagger UI is available at `http://localhost:3000/api/docs`.
 The raw OpenAPI JSON is at `http://localhost:3000/api/docs.json`.
 
+## API Client
+
+Generate the API client from the Swagger spec:
+
+```bash
+npm run api:fetch
+npm run api:generate
+```
+
+This writes the generated Axios client to `client/src/api/index.ts`.
+
 ## Health Check
 
 `GET /healthz` returns the server status and MongoDB connection state.

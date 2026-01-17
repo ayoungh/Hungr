@@ -11,7 +11,10 @@
   },
   "scripts": {
     "start": "node server/server.js",
-    "test": "jest --runInBand"
+    "test": "jest --runInBand",
+    "api:fetch": "curl -s http://localhost:3000/api/docs.json -o api-docs.json",
+    "api:generate": "orval --config ./orval.config.js",
+    "pnpm:api:generate": "pnpm api:generate"
   },
   "dependencies": {
     "bcryptjs": "^3.0.2",
@@ -36,6 +39,7 @@
     "jest": "^29.7.0",
     "mongodb-memory-server": "^9.4.0",
     "nodemon": "^3.1.10",
+    "orval": "^6.31.0",
     "supertest": "^7.1.0"
   }
 }
