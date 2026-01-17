@@ -1,9 +1,21 @@
+import Link from "next/link";
 import styles from "./page.module.css";
 
 export default function Home() {
   return (
     <div className={styles.page}>
       <main className={styles.main}>
+        <nav className={styles.nav}>
+          <div className={styles.brand}>Hungr</div>
+          <div className={styles.navLinks}>
+            <Link href="/foods">Foods</Link>
+            <Link href="/login">Log in</Link>
+            <Link className={styles.navCta} href="/signup">
+              Sign up
+            </Link>
+          </div>
+        </nav>
+
         <header className={styles.hero}>
           <p className={styles.eyebrow}>Hungr</p>
           <h1>Share the foods you love, without the scroll fatigue.</h1>
@@ -13,8 +25,12 @@ export default function Home() {
             delightful social layer.
           </p>
           <div className={styles.ctas}>
-            <button className={styles.primary}>Get Started</button>
-            <button className={styles.secondary}>View API Docs</button>
+            <Link className={styles.primary} href="/signup">
+              Get Started
+            </Link>
+            <a className={styles.secondary} href="http://localhost:3000/api/docs" target="_blank" rel="noreferrer">
+              View API Docs
+            </a>
           </div>
         </header>
 
@@ -38,7 +54,9 @@ export default function Home() {
             <h4>API status</h4>
             <p>Health check and Mongo connection in one glance.</p>
           </div>
-          <button className={styles.ghost}>Check /healthz</button>
+          <a className={styles.ghost} href="http://localhost:3000/healthz" target="_blank" rel="noreferrer">
+            Check /healthz
+          </a>
         </section>
       </main>
     </div>

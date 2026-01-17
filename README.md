@@ -117,6 +117,15 @@ npm run api:generate
 
 This writes the generated Axios client to `client/src/api/index.ts`.
 
+## Frontend
+
+The Next.js app lives in `client/`.
+
+```bash
+cd client
+npm run dev
+```
+
 ## Health Check
 
 `GET /healthz` returns the server status and MongoDB connection state.

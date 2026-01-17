@@ -1,0 +1,90 @@
+.page {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top left, rgba(255, 212, 178, 0.6), transparent 45%),
+    linear-gradient(140deg, #fef8f2, #f1e7da);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 72px 8vw;
+}
+
+.card {
+  width: min(460px, 100%);
+  background: white;
+  border-radius: 28px;
+  padding: 36px;
+  box-shadow: 0 20px 50px rgba(20, 12, 4, 0.15);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.title {
+  font-size: 28px;
+  margin-bottom: 6px;
+}
+
+.subtitle {
+  color: #5b5045;
+  line-height: 1.6;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-weight: 600;
+  color: #2a1f16;
+}
+
+.field input {
+  border-radius: 14px;
+  border: 1px solid #e4d7c9;
+  padding: 12px 14px;
+  font-size: 14px;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.primary {
+  border: none;
+  border-radius: 999px;
+  padding: 12px 24px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  background: linear-gradient(135deg, #ff7a59, #f3b041);
+  color: white;
+}
+
+.link {
+  color: #2a1f16;
+  font-weight: 600;
+}
+
+.message {
+  border-radius: 14px;
+  padding: 10px 14px;
+  font-size: 14px;
+}
+
+.error {
+  background: #ffe3dd;
+  color: #8f2c1a;
+}
+
+.success {
+  background: #dff7ea;
+  color: #205f3a;
+}
