@@ -34,6 +34,42 @@ Create a frontend (single page app) with angular.js
 - [ ] Add auth checking to food items
 - [ ] Start coding the basic structure of the frontend app
 
+## Setup
+
+1. Install dependencies:
+
+   ```bash
+   npm install
+   ```
+
+2. Copy the example environment file and adjust values as needed:
+
+   ```bash
+   cp .env.example .env.local
+   ```
+
+   The server loads `.env.local` first, then `.env`, to read `DB`, `PORT`, and `API_LOGGING`.
+
+3. Start MongoDB locally (or point `db` at a remote instance):
+
+   ```bash
+   mongod --dbpath /path/to/your/db
+   ```
+
+4. (Optional) Enable API logging for debugging:
+
+   ```bash
+   API_LOGGING=true npm run start
+   ```
+
+5. Start the server:
+
+   ```bash
+   npm run start
+   ```
+
+The server listens on `port` (defaults to `3000`).
+
 ## Authentication
 
 The server exposes `/api/auth` which returns a JSON Web Token (JWT). Make a POST
@@ -60,18 +96,12 @@ The server connects to MongoDB using the connection string defined in
 `server/config.js`. By default this is
 `mongodb://localhost:27017/hungrdb`.
 
-1. Install MongoDB and start a local instance, e.g.
+Optionally set the `DB` environment variable if you want to use a different
+connection string:
 
-   ```bash
-   mongod --dbpath /path/to/your/db
-   ```
-
-2. Optionally set the `db` environment variable if you want to use a
-   different connection string:
-
-   ```bash
-   DB="mongodb://username:password@host:port/dbname" npm run start
-   ```
+```bash
+DB="mongodb://username:password@host:port/dbname" npm run start
+```
 
 Ensure MongoDB is running before launching the server.
 

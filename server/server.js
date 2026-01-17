@@ -17,14 +17,33 @@ const config = require('./config');
 
 
 //DB
+let mongoStatus = 'disconnected';
+
 console.log(`Connecting to MongoDB at ${config.db}`);
 mongoose.connect(config.db)
   .then(() => {
+    mongoStatus = 'connected';
     console.log('MongoDB connection established');
   })
   .catch((err) => {
+    mongoStatus = 'error';
     console.error('MongoDB connection error:', err.message);
   });
+
+mongoose.connection.on('error', (err) => {
+  mongoStatus = 'error';
+  console.error('MongoDB connection error:', err.message);
+});
+
+mongoose.connection.on('disconnected', () => {
+  mongoStatus = 'disconnected';
+  console.warn('MongoDB connection disconnected');
+});
+
+mongoose.connection.on('connected', () => {
+  mongoStatus = 'connected';
+  console.log('MongoDB connection established');
+});
 
 
 //set our app as express
@@ -38,6 +57,19 @@ app.use(logger('dev'));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cookieParser());
+
+if (config.apiLogging) {
+  app.use((req, res, next) => {
+    console.log(`[api] ${req.method} ${req.originalUrl}`);
+    if (Object.keys(req.query || {}).length) {
+      console.log('[api] query:', req.query);
+    }
+    if (Object.keys(req.body || {}).length) {
+      console.log('[api] body:', req.body);
+    }
+    next();
+  });
+}
 //config expressJWT
 app.use(
   jwtMiddleware({ secret: config.tokenSecret, algorithms: ['HS256'] }).unless({
@@ -89,12 +121,19 @@ app.set('port', config.port);
 
 app.listen(app.get('port'), () => {
   console.log(`Express server listening on port ${app.get('port')} - ${app.get('env')}`);
+  console.log(`MongoDB status: ${mongoStatus}`);
   console.log(`Started: ${moment().format('MMMM Do YYYY, h:mm:ss a')}`);
 });
 
 // generic error handler to stop the server crashing on unhandled errors
 app.use((err, req, res, next) => {
   console.error(err.stack);
+  if (config.apiLogging) {
+    return res.status(500).json({
+      error: 'Internal Server Error',
+      details: err.message || err
+    });
+  }
   res.status(500).json({ error: 'Internal Server Error' });
 });
 

@@ -11,15 +11,15 @@ console.log('Food Route');
 var router = express.Router(); //define our router 
 
 router.route('/foods') //http://localhost:PORT/api/foods
-    .get(function(req, res) { //get all the food items
-        Food.find(function(err, food) {
-            if (err)
-                res.send(err);
-
-            res.json(food);
-        });
+    .get(async function(req, res) { //get all the food items
+        try {
+            const food = await Food.find();
+            res.json(food || []);
+        } catch (err) {
+            res.send(err);
+        }
     })
-	.post(function (req, res) { //post a food item
+	.post(async function (req, res) { //post a food item
         var food = new Food(); // create a new instance of the Food model
         food.name = req.body.name; // set the food name (comes from the request)
         food.image = req.body.image; //
@@ -29,40 +29,39 @@ router.route('/foods') //http://localhost:PORT/api/foods
         console.log('moment unix: ', moment().unix());
 
         // save the food and check for errors
-        food.save(function(err) {
-            if (err) {
-            	console.log('food save error')
-                //res.send(err);
-            	var data = {
-            		error: 'Error saving food',
-            		raw: err
-            	}
-            } else {		
-                var data = { 
-        			message: 'Food created!',
-                	raw: food
-                }	
-            }	
-
-
+        try {
+            await food.save();
+            var data = {
+                message: 'Food created!',
+                raw: food
+            };
             res.json(data);
-        });
+        } catch (err) {
+            console.log('food save error');
+            var data = {
+                error: 'Error saving food',
+                raw: err
+            };
+            res.json(data);
+        }
 	});
 
 router.route('/foods/:food_id') //http://localhost:PORT/api/foods/:food_id
-	.get(function(req, res) { //get the individual food item by id
-        Food.findById(req.params.food_id, function(err, food) { //find the food model by id
-            if (err)
-            	res.send(err); //change this to give back an error in json
-                //res.json({ message: 'Error, the food you are looking for may not exist' });
+	.get(async function(req, res) { //get the individual food item by id
+        try {
+            const food = await Food.findById(req.params.food_id); //find the food model by id
             res.json(food);
-        });
+        } catch (err) {
+            res.send(err); //change this to give back an error in json
+        }
     })
-    .put(function(req, res) { //update the individual food item by id
-        Food.findById(req.params.food_id, function(err, food) { //find the food model by id
+    .put(async function(req, res) { //update the individual food item by id
+        try {
+            const food = await Food.findById(req.params.food_id); //find the food model by id
 
-            if (err)
-                res.send(err);
+            if (!food) {
+                return res.status(404).json({ message: 'Food item not found' });
+            }
 
             food.name = req.body.name;  // update the food item info
             food.image = req.body.image; //
@@ -70,23 +69,21 @@ router.route('/foods/:food_id') //http://localhost:PORT/api/foods/:food_id
             food.dateModified = moment().unix();
 
             // save the food
-            food.save(function(err) {
-                if (err)
-                    res.send(err);
+            await food.save();
 
-                res.json({ 
-		                	message: 'Food has been updated!',
-		                	raw: food
-                		});
+            res.json({
+                message: 'Food has been updated!',
+                raw: food
             });
-
-        });
+        } catch (err) {
+            res.send(err);
+        }
     })
-    .delete(function(req, res) { //delete teh food by id
-        Food.findByIdAndDelete(req.params.food_id, function(err) {
-            if (err)
-                return res.send(err);
-
+    .delete(async function(req, res) { //delete teh food by id
+        try {
+            await Food.findByIdAndDelete(req.params.food_id);
             res.json({ message: 'Successfully deleted food item' });
-        });
+        } catch (err) {
+            return res.send(err);
+        }
     });

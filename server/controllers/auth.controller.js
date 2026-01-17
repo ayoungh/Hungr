@@ -99,14 +99,16 @@ if (false) {
         return res.json({ message: 'Token has expired.' });
       }
      
-      User.findById(payload.sub, function(err, user) {
-        console.log('user: ', user)
+      User.findById(payload.sub).then(function(user) {
+        console.log('user: ', user);
         if (!user) {
           return res.json({ message: 'User no longer exists.' });
         }
      
         req.user = user;
         next();
+      }).catch(function(err) {
+        return res.json({ message: 'User lookup failed.', raw: err });
       });
     };
 }
