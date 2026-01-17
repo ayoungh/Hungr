@@ -94,6 +94,11 @@ curl -H "Authorization: Bearer <token>" http://localhost:3000/api/foods
 
 Include the same header when creating or updating food items.
 
+## API Docs
+
+Swagger UI is available at `http://localhost:3000/api/docs`.
+The raw OpenAPI JSON is at `http://localhost:3000/api/docs.json`.
+
 ## Using MongoDB
 
 The server connects to MongoDB using the connection string defined in

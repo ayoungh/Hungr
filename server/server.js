@@ -8,6 +8,8 @@ const mongoose = require('mongoose');
 const session = require('express-session');
 const cookieParser = require('cookie-parser');
 const passport = require('passport');
+const swaggerUi = require('swagger-ui-express');
+const swaggerJSDoc = require('swagger-jsdoc');
 
 const moment = require('moment');
 
@@ -83,8 +85,53 @@ app.use(passport.session()); // persistent login sessions
 const passportConfig = require('./passport'); //(passport); // pass passport for configuration
 
 
+const swaggerSpec = swaggerJSDoc({
+  definition: {
+    openapi: '3.0.0',
+    info: {
+      title: 'Hungr API',
+      version: '1.0.0',
+      description: 'API for the Hungr food sharing app',
+    },
+    servers: [
+      {
+        url: 'http://localhost:3000',
+      },
+    ],
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+        },
+      },
+    },
+  },
+  apis: ['./server/routes/*.js', './server/server.js'],
+});
+
+
 //ROUTES
 
+/**
+ * @openapi
+ * /api/auth:
+ *   get:
+ *     tags:
+ *       - Auth
+ *     summary: Test auth GET endpoint
+ *     responses:
+ *       200:
+ *         description: Auth GET response
+ *   post:
+ *     tags:
+ *       - Auth
+ *     summary: Test auth POST endpoint
+ *     responses:
+ *       200:
+ *         description: Auth POST response with token
+ */
 app.get('/api/auth', (req, res) => {
   res.json({
     message: 'test get request',
@@ -100,6 +147,11 @@ app.post('/api/auth', (req, res) => {
     message: 'test post request',
     token,
   });
+});
+
+app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+app.get('/api/docs.json', (req, res) => {
+  res.json(swaggerSpec);
 });
 
 
