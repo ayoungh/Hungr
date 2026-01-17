@@ -1,9 +1,5 @@
 //CONTROLLER
 
-//Dependencies
-var express = require('express');
-var moment = require('moment');
-
 //MODEL
 var User = require('../models/user.model'); //load in our user model
 
@@ -21,9 +17,9 @@ var User = require('../models/user.model'); //load in our user model
 module.exports.getUsers = async function (req, res) { //get all the users
 	try {
 	    const user = await User.find().select('email username');
-	    res.json(user);
+	    res.json({ data: user });
 	} catch (err) {
-	    res.send(err);
+	    res.status(500).json({ error: 'Failed to fetch users', details: err.message || err });
 	}
 };
 
@@ -68,7 +64,7 @@ module.exports.postUser = async function (req, res) { //post a user item
         if (err.code === 11000) {
             return res.status(400).json({ error: 'Email address already found!' });
         }
-        return res.status(500).json({ error: 'Error saving user', raw: err });
+        return res.status(500).json({ error: 'Error saving user', details: err.message || err });
     }
 };
 
@@ -78,9 +74,9 @@ module.exports.getUser = async function(req, res) { //get the individual user it
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
-        res.json(user);
+        res.json({ data: user });
     } catch (err) {
-        return res.send(err); //change this to give back an error in json
+        return res.status(500).json({ error: 'Failed to fetch user', details: err.message || err });
     }
 };
 
@@ -116,7 +112,7 @@ module.exports.updateUser = async function(req, res) { //update the individual u
             username: user.username
         });
     } catch (err) {
-        return res.send(err);
+        return res.status(500).json({ error: 'Failed to update user', details: err.message || err });
     }
 };
 
@@ -126,6 +122,6 @@ module.exports.deleteUser = async function(req, res) { //delete the user by id
     await User.findByIdAndDelete(req.params.user_id);
     res.json({ message: 'Successfully deleted user' });
   } catch (err) {
-    return res.send(err);
+    return res.status(500).json({ error: 'Failed to delete user', details: err.message || err });
   }
 };

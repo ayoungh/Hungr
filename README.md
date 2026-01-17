@@ -50,7 +50,7 @@ Create a frontend (single page app) with angular.js
    cp .env.example .env.local
    ```
 
-   The server loads `.env.local` first, then `.env`, to read `DB`, `PORT`, and `API_LOGGING`.
+   The server loads `.env.local` first, then `.env`, to read `DB`, `PORT`, `API_LOGGING`, `TOKEN_SECRET`, and `SESSION_SECRET`.
 
 3. Start MongoDB locally (or point `db` at a remote instance):
 
@@ -64,7 +64,14 @@ Create a frontend (single page app) with angular.js
    API_LOGGING=true npm run start
    ```
 
-5. Start the server:
+5. Set secrets (required in production):
+
+   ```bash
+   TOKEN_SECRET=replace_me
+   SESSION_SECRET=replace_me
+   ```
+
+6. Start the server:
 
    ```bash
    npm run start
@@ -98,6 +105,10 @@ Include the same header when creating or updating food items.
 
 Swagger UI is available at `http://localhost:3000/api/docs`.
 The raw OpenAPI JSON is at `http://localhost:3000/api/docs.json`.
+
+## Health Check
+
+`GET /healthz` returns the server status and MongoDB connection state.
 
 ## Using MongoDB
 

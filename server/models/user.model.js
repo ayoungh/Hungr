@@ -8,23 +8,21 @@ var bcrypt = require('bcryptjs');
 
 var UserSchema = new Schema({
 
-    username : { type: String, lowercase: true } ,
-    email : { type: String, unique: true, lowercase: true }, //this will check that no other accounts exist with same email when saving
+    username : { type: String, lowercase: true, index: true } ,
+    email : { type: String, unique: true, lowercase: true, index: true }, //this will check that no other accounts exist with same email when saving
     isVerified : Boolean,
     isAdmin : Boolean,
-    dateCreated : String,
-    dateModified : String,
     accessToken: String,
     name : {
                 first: String,
                 last: String
             },
-    picture: String,        
+    picture: String,
     local : {
         password : String
     }
 
-});
+}, { timestamps: true });
 
 
 // UserSchema.pre('save', function(next) {

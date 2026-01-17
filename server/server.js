@@ -4,12 +4,15 @@ const logger = require('morgan');
 //const jwt = require('jwt-simple');
 const jwt = require('jsonwebtoken');
 const cors = require('cors');
+const isTestEnv = process.env.NODE_ENV === 'test';
 const mongoose = require('mongoose');
 const session = require('express-session');
 const cookieParser = require('cookie-parser');
 const passport = require('passport');
 const swaggerUi = require('swagger-ui-express');
 const swaggerJSDoc = require('swagger-jsdoc');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 
 const moment = require('moment');
 
@@ -17,47 +20,65 @@ const moment = require('moment');
 const config = require('./config');
 
 
+//set our app as express
+const app = express();
+//module.exports.app = app;
+
 //DB
 let mongoStatus = 'disconnected';
+
+if (isTestEnv) {
+  mongoose.set('bufferCommands', false);
+}
 
 console.log(`Connecting to MongoDB at ${config.db}`);
 mongoose.connect(config.db)
   .then(() => {
     mongoStatus = 'connected';
+    app.set('mongoStatus', mongoStatus);
     console.log('MongoDB connection established');
   })
   .catch((err) => {
     mongoStatus = 'error';
+    app.set('mongoStatus', mongoStatus);
     console.error('MongoDB connection error:', err.message);
   });
 
 mongoose.connection.on('error', (err) => {
   mongoStatus = 'error';
+  app.set('mongoStatus', mongoStatus);
   console.error('MongoDB connection error:', err.message);
 });
 
 mongoose.connection.on('disconnected', () => {
   mongoStatus = 'disconnected';
+  app.set('mongoStatus', mongoStatus);
   console.warn('MongoDB connection disconnected');
 });
 
 mongoose.connection.on('connected', () => {
   mongoStatus = 'connected';
+  app.set('mongoStatus', mongoStatus);
   console.log('MongoDB connection established');
 });
 
-
-//set our app as express
-const app = express();
-//module.exports.app = app;
+app.set('mongoStatus', mongoStatus);
 
 
 //Tell our app to use middlewares
+app.use(helmet());
 app.use(cors());
 app.use(logger('dev'));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cookieParser());
+
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 20,
+  standardHeaders: true,
+  legacyHeaders: false,
+});
 
 if (config.apiLogging) {
   app.use((req, res, next) => {
@@ -71,6 +92,7 @@ if (config.apiLogging) {
     next();
   });
 }
+
 
 // required for passport
 app.use(session({
@@ -154,9 +176,27 @@ app.get('/api/docs.json', (req, res) => {
   res.json(swaggerSpec);
 });
 
+/**
+ * @openapi
+ * /healthz:
+ *   get:
+ *     tags:
+ *       - Status
+ *     summary: Health check
+ *     responses:
+ *       200:
+ *         description: Health status
+ */
+app.get('/healthz', (req, res) => {
+  res.json({
+    status: 'ok',
+    mongoStatus: app.get('mongoStatus') || 'unknown'
+  });
+});
+
 
 const router = express.Router(); //define our router
-const routes = require('./routes/index')(app, router); // load our routes and pass in our app, passport (configured), Food model, User model
+const routes = require('./routes/index')(app, router, authLimiter); // load our routes and pass in our app, passport (configured), Food model, User model
 
 
 //set the port to use from config file
@@ -164,23 +204,26 @@ app.set('port', config.port);
 
 //app.use(errorHandler());
 
-app.listen(app.get('port'), () => {
-  console.log(`Express server listening on port ${app.get('port')} - ${app.get('env')}`);
-  console.log(`MongoDB status: ${mongoStatus}`);
-  console.log(`Started: ${moment().format('MMMM Do YYYY, h:mm:ss a')}`);
-});
+let server;
+
+if (require.main === module) {
+  server = app.listen(app.get('port'), () => {
+    console.log(`Express server listening on port ${app.get('port')} - ${app.get('env')}`);
+    console.log(`MongoDB status: ${mongoStatus}`);
+    console.log(`Started: ${moment().format('MMMM Do YYYY, h:mm:ss a')}`);
+  });
+}
 
 // generic error handler to stop the server crashing on unhandled errors
 app.use((err, req, res, next) => {
   console.error(err.stack);
-  if (config.apiLogging) {
-    return res.status(500).json({
-      error: 'Internal Server Error',
-      details: err.message || err
-    });
-  }
-  res.status(500).json({ error: 'Internal Server Error' });
+  return res.status(500).json({
+    error: 'Internal Server Error',
+    details: err.message || err
+  });
 });
+
+module.exports = app;
 
 
 

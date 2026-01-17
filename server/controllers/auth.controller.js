@@ -2,8 +2,6 @@
 
 //Dependencies 
 var jwt = require('jsonwebtoken');
-var moment = require('moment');
-var bcrypt = require('bcryptjs');
 var config = require('../config');
 
 //MODEL
@@ -42,6 +40,7 @@ module.exports.requireAuth = function requireAuth(req, res, next) {
 
 
 
+
 module.exports.getLogin = function(req, res) {
   res.status(405).json({ error: 'Use POST /api/login to authenticate.' });
 };
@@ -56,10 +55,10 @@ module.exports.postLogin = async function(req, res) {
 
   try {
     const user = await User.findOne({ email: email.toLowerCase() });
-    if (!user.local || !user.local.password) {
+    if (!user) {
       return res.status(401).json({ error: 'Invalid credentials.' });
     }
-    if (!user) {
+    if (!user.local || !user.local.password) {
       return res.status(401).json({ error: 'Invalid credentials.' });
     }
 
@@ -73,7 +72,8 @@ module.exports.postLogin = async function(req, res) {
       token: token,
       user: {
         id: user._id,
-        email: user.email
+        email: user.email,
+        username: user.username
       }
     });
   } catch (err) {

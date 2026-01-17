@@ -6,11 +6,9 @@ var Schema = mongoose.Schema;
 
 //define our schema
 var FoodSchema = new Schema({
-    name : String,
+    name : { type: String, required: true },
     image : String,
-    dateCreated : String,
-    dateModified : String,
-});
+}, { timestamps: true });
 
 //export
 module.exports = mongoose.model('Food', FoodSchema);

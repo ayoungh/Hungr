@@ -23,7 +23,7 @@ var FoodCtrl = require('../controllers/food.controller');
 var UserCtrl = require('../controllers/user.controller');
 
 
-module.exports = function(app, router) {
+module.exports = function(app, router, authLimiter) {
 
     // middleware to use for all requests
     router.use(function(req, res, next) {
@@ -71,7 +71,7 @@ module.exports = function(app, router) {
      */
     router.route('/login')
         .get(AuthCtrl.getLogin) //check login is valid
-        .post(AuthCtrl.postLogin); //login
+        .post(authLimiter, AuthCtrl.postLogin); //login
 
     router.route('/logout')
         .get(AuthCtrl.getLogout) //invalidate jwt token    
@@ -123,7 +123,7 @@ module.exports = function(app, router) {
      */
     router.route('/users')
         .get(AuthCtrl.requireAuth, UserCtrl.getUsers)
-        .post(UserCtrl.postUser);
+        .post(authLimiter, UserCtrl.postUser);
 
 
     /**
@@ -353,10 +353,11 @@ module.exports = function(app, router) {
      *       200:
      *         description: API status
      */
-    //api root
-    router.route('/').get(function (req, res) {
-      res.json({ message:'Api'});
-    });
+     //api root
+     router.route('/').get(function (req, res) {
+       res.json({ message:'Api'});
+     });
+
       
 
 
