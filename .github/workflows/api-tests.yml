@@ -22,4 +22,8 @@ jobs:
         run: npm install
 
       - name: Run API tests
+        env:
+          API_LOGGING: ${{ secrets.API_LOGGING }}
+          DB: ${{ secrets.DB }}
+          PORT: ${{ secrets.PORT }}
         run: npm test
