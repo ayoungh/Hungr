@@ -27,3 +27,7 @@ jobs:
           DB: ${{ secrets.DB }}
           PORT: ${{ secrets.PORT }}
         run: npm test
+
+      - name: Tests passed
+        if: ${{ success() }}
+        run: echo "All API tests passed."
