@@ -6,7 +6,7 @@ let mongoServer;
 let app;
 
 const registerAndLogin = async () => {
-  const email = 'usertester@example.com';
+  const email = `usertester+${Date.now()}@example.com`;
   const password = 'password123';
 
   await request(app)

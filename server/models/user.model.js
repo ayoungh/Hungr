@@ -51,7 +51,7 @@ UserSchema.methods.validPassword = function(password) {
 };
 
 UserSchema.methods.validEmail = function(email) {
-    var re = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+    var re = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
     return re.test(email)
 };
 
