@@ -1,157 +1,113 @@
-Hungr
-=====
+# Hungr
 
-A Node web app for sharing what food you enjoy with friends and family.
+Hungr is a private food-sharing app built as a pnpm workspace:
 
-## 2026 update
+- `apps/api` — NestJS 11, MongoDB/Mongoose, cookie JWT authentication, and OpenAPI.
+- `apps/web` — Next.js 16 and an Orval-generated Axios client.
 
-The server now uses modern middleware defaults (Helmet, rate limiting, and
-JWT auth), plus Swagger-based API docs with an Orval-generated Axios client.
-The frontend has been migrated to a Next.js app under `client/`.
+The browser talks to same-origin `/api/*` routes. Next.js proxies those requests
+to NestJS, so the seven-day authentication JWT stays in an HttpOnly cookie and
+is never exposed to client JavaScript.
 
-Dependencies and server configuration have been refreshed to work with modern
-versions of Node.js (tested with Node 20) and MongoDB. See `package.json` for
-the updated dependency list. Mongoose no longer requires the deprecated
-`useNewUrlParser` and `useUnifiedTopology` options, so the server connects using
-the defaults to avoid driver warnings.
+## Requirements
 
-The idea of this is to learn node.js and angular.js by creating an app to share food with friends and family. I love food and like trying new foods, but want to be able to share these new foods with friends and family without the usual instagram upload.
-
-Plan so far:
-
-Create a node.js server that will handle all of the data
-
-###Routes
-	/api
-	/api/foods
-	/api/foods/food_id
-	/api/users
-	/api/users/user_id
-
-Create a frontend (single page app) with angular.js 
-
-
-## TODO
-
-- [x] Basic rest routes created
-- [x] Document setup and environment config
-- [x] Add API logging mode for debugging
-- [x] Get Authentication of users working
-- [x] Add auth checking to food items
-- [ ] Start coding the basic structure of the frontend app
-
-## Setup
-
-1. Install dependencies:
-
-   ```bash
-   npm install
-   ```
-
-2. Copy the example environment file and adjust values as needed:
-
-   ```bash
-   cp .env.example .env.local
-   ```
-
-   The server loads `.env.local` first, then `.env`, to read `DB`, `PORT`, `API_LOGGING`, `TOKEN_SECRET`, and `SESSION_SECRET`.
-
-3. Start MongoDB locally (or point `db` at a remote instance):
-
-   ```bash
-   mongod --dbpath /path/to/your/db
-   ```
-
-4. (Optional) Enable API logging for debugging:
-
-   ```bash
-   API_LOGGING=true npm run start
-   ```
-
-5. Set secrets (required in production):
-
-   ```bash
-   TOKEN_SECRET=replace_me
-   SESSION_SECRET=replace_me
-   ```
-
-6. Start the server:
-
-   ```bash
-   npm run start
-   ```
-
-The server listens on `port` (defaults to `3000`).
-
-## Authentication
-
-Create a user with `POST /api/users`, then log in with `POST /api/login` to
-receive a JSON Web Token (JWT).
-
-Example login using `curl`:
+- Node.js 24 LTS
+- pnpm 10
+- MongoDB
 
 ```bash
-curl -X POST http://localhost:3000/api/login \
-  -H "Content-Type: application/json" \
-  -d '{"email":"you@example.com","password":"secret"}'
+nvm use
+pnpm install
+cp .env.example .env.local
 ```
 
-Use the returned token in the `Authorization` header (as `Bearer <token>`) when
-calling protected API routes. For instance, to fetch all foods:
+Replace `JWT_SECRET` with at least 32 random characters before using a shared
+environment. `MONGODB_URI` and `JWT_SECRET` are mandatory in production.
+
+## Development
+
+Start the Nest API on port 4000 and the Next.js app on port 3000:
 
 ```bash
-curl -H "Authorization: Bearer <token>" http://localhost:3000/api/foods
+pnpm dev
 ```
 
-Include the same header when creating or updating food items.
+Open:
 
-## API Docs
+- App: `http://localhost:3000`
+- Swagger UI: `http://localhost:3000/api/docs`
+- OpenAPI JSON: `http://localhost:3000/api/docs.json`
+- Health: `http://localhost:3000/healthz`
 
-Swagger UI is available at `http://localhost:3000/api/docs`.
-The raw OpenAPI JSON is at `http://localhost:3000/api/docs.json`.
+`API_ORIGIN` is server-only. In local development it defaults to
+`http://127.0.0.1:4000`; set it to the internal NestJS origin when deploying the
+web and API as separate processes.
 
-## API Client
+## API
 
-Generate the API client from the Swagger spec:
+All product routes are versioned under `/api/v1`:
+
+- `POST /auth/register`, `POST /auth/login`, `POST /auth/logout`
+- `GET /auth/session`
+- `GET /users/me`, `PATCH /users/me`
+- `GET /foods`, `POST /foods`
+- `GET /foods/:id`, `PATCH /foods/:id`, `DELETE /foods/:id`
+
+Food queries are always scoped to the authenticated owner. A request for
+another user's food returns 404.
+
+OpenAPI is generated from Nest decorators without starting MongoDB. Orval then
+generates the typed browser client:
 
 ```bash
-npm run api:fetch
-npm run api:generate
+pnpm api:generate
+pnpm api:check
 ```
 
-This writes the generated Axios client to `client/src/api/index.ts`.
+`api:check` fails when the committed OpenAPI document or generated client is
+stale.
 
-## Frontend
+## Legacy food ownership
 
-The Next.js app lives in `client/`.
+Foods created by the old Express server have no owner and are intentionally
+hidden from normal API responses. Inspect them without changing data:
 
 ```bash
-cd client
-npm run dev
+pnpm migrate:food-owners
 ```
 
-## CI
-
-GitHub Actions runs `npm test` for API endpoint coverage on pull requests and main.
-
-## Health Check
-
-`GET /healthz` returns the server status and MongoDB connection state.
-
-## Using MongoDB
-
-The server connects to MongoDB using the connection string defined in
-`server/config.js`. By default this is
-`mongodb://localhost:27017/hungrdb`.
-
-Optionally set the `DB` environment variable if you want to use a different
-connection string:
+To preview an intended owner:
 
 ```bash
-DB="mongodb://username:password@host:port/dbname" npm run start
+pnpm migrate:food-owners -- --owner-email you@example.com
 ```
 
-Ensure MongoDB is running before launching the server.
+Apply the assignment explicitly:
 
-When the server starts you should see log messages indicating the connection
-string and whether the connection succeeded or failed.
+```bash
+pnpm migrate:food-owners -- --owner-email you@example.com --apply
+```
+
+The command only assigns foods whose `owner` is missing, so repeated runs are
+safe and do not delete or reassign records.
+
+## Verification
+
+```bash
+pnpm lint
+pnpm typecheck
+pnpm test
+pnpm build
+pnpm test:browser
+```
+
+The API suite uses an isolated in-memory MongoDB. The browser smoke test starts
+an isolated API and verifies signup, session restoration, food creation, and
+logout through the real Next.js proxy.
+
+## Production shape
+
+Build both applications with `pnpm build`. Run NestJS with
+`pnpm --filter @hungr/api start:prod` and Next.js with
+`pnpm --filter @hungr/web start`. Configure the web process's `API_ORIGIN` to
+reach the API process and set `APP_ORIGIN` to the public web origin.

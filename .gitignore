@@ -4,8 +4,17 @@
 
 # Dependency directory
 node_modules
+.pnpm-store
+.next
+dist
+coverage
+test-results
+playwright-report
 
 # Operating system metadata
 .DS_Store
 Thumbs.db
 .env.local
+.env
+apps/*/.env
+apps/*/.env.local

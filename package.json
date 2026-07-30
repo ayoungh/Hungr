@@ -1,45 +1,28 @@
 {
-  "name": "hungr-server",
-  "description": "Food sharing webapp",
-  "version": "0.0.0",
-  "author": {
-    "name": "Anthony Young"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/ayoungh/Hungr"
+  "name": "hungr",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A modern food-sharing app powered by NestJS, Next.js, and MongoDB.",
+  "packageManager": "pnpm@10.28.2",
+  "engines": {
+    "node": ">=24 <25",
+    "pnpm": ">=10 <11"
   },
   "scripts": {
-    "start": "node server/server.js",
-    "test": "jest --runInBand",
-    "api:fetch": "curl -s http://localhost:3000/api/docs.json -o api-docs.json",
-    "api:generate": "orval --config ./orval.config.js",
-    "pnpm:api:generate": "pnpm api:generate"
-  },
-  "dependencies": {
-    "bcryptjs": "^3.0.2",
-    "connect-flash": "^0.1.1",
-    "cors": "^2.8.5",
-    "cookie-parser": "^1.4.7",
-    "dotenv": "^16.4.7",
-    "express": "^4.21.2",
-    "express-session": "^1.18.1",
-    "express-rate-limit": "^7.5.0",
-    "helmet": "^8.1.0",
-    "swagger-jsdoc": "^6.2.8",
-    "swagger-ui-express": "^5.0.1",
-    "jsonwebtoken": "^9.0.2",
-    "moment": "^2.30.1",
-    "mongoose": "^8.15.1",
-    "morgan": "^1.10.0",
-    "passport": "^0.7.0",
-    "passport-local": "^1.0.0"
+    "dev": "pnpm --parallel --filter @hungr/api --filter @hungr/web dev",
+    "build": "pnpm api:generate && pnpm --filter @hungr/api build && pnpm --filter @hungr/web build",
+    "start": "pnpm --filter @hungr/api start:prod",
+    "lint": "pnpm -r lint",
+    "typecheck": "pnpm -r typecheck",
+    "test": "pnpm --filter @hungr/api test && pnpm --filter @hungr/api test:e2e",
+    "test:browser": "pnpm --filter @hungr/web test:browser",
+    "api:openapi": "pnpm --filter @hungr/api openapi:generate",
+    "api:generate": "pnpm api:openapi && pnpm exec orval --config ./orval.config.ts",
+    "api:check": "node scripts/check-generated-api.mjs",
+    "migrate:food-owners": "pnpm --filter @hungr/api migrate:food-owners",
+    "verify": "pnpm lint && pnpm typecheck && pnpm test && pnpm api:check && pnpm build"
   },
   "devDependencies": {
-    "jest": "^29.7.0",
-    "mongodb-memory-server": "^9.4.0",
-    "nodemon": "^3.1.10",
-    "orval": "^6.31.0",
-    "supertest": "^7.1.0"
+    "orval": "8.23.0"
   }
 }

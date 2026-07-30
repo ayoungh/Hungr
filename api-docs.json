@@ -1,1 +1,719 @@
-{"openapi":"3.0.0","info":{"title":"Hungr API","version":"1.0.0","description":"API for the Hungr food sharing app"},"servers":[{"url":"http://localhost:3000"}],"components":{"securitySchemes":{"bearerAuth":{"type":"http","scheme":"bearer","bearerFormat":"JWT"}}},"paths":{"/api/login":{"post":{"tags":["Auth"],"summary":"Log in and receive a JWT","requestBody":{"required":true,"content":{"application/json":{"schema":{"type":"object","required":["email","password"],"properties":{"email":{"type":"string","example":"you@example.com"},"password":{"type":"string","example":"secret"}}}}}},"responses":{"200":{"description":"Login success"},"400":{"description":"Validation error"},"401":{"description":"Invalid credentials"}}}},"/api/users":{"get":{"tags":["Users"],"summary":"List users","security":[{"bearerAuth":[]}],"responses":{"200":{"description":"List of users"},"401":{"description":"Unauthorized"}}},"post":{"tags":["Users"],"summary":"Register a user","requestBody":{"required":true,"content":{"application/json":{"schema":{"type":"object","required":["email","password"],"properties":{"email":{"type":"string","example":"you@example.com"},"password":{"type":"string","example":"secret123"}}}}}},"responses":{"200":{"description":"User created"},"400":{"description":"Validation error"}}}},"/api/users/{user_id}":{"get":{"tags":["Users"],"summary":"Get a user by id","security":[{"bearerAuth":[]}],"parameters":[{"in":"path","name":"user_id","required":true,"schema":{"type":"string"}}],"responses":{"200":{"description":"User details"},"401":{"description":"Unauthorized"},"404":{"description":"User not found"}}},"put":{"tags":["Users"],"summary":"Update a user","security":[{"bearerAuth":[]}],"parameters":[{"in":"path","name":"user_id","required":true,"schema":{"type":"string"}}],"requestBody":{"required":true,"content":{"application/json":{"schema":{"type":"object","properties":{"email":{"type":"string"},"password":{"type":"string"}}}}}},"responses":{"200":{"description":"User updated"},"400":{"description":"Validation error"},"401":{"description":"Unauthorized"},"404":{"description":"User not found"}}},"delete":{"tags":["Users"],"summary":"Delete a user","security":[{"bearerAuth":[]}],"parameters":[{"in":"path","name":"user_id","required":true,"schema":{"type":"string"}}],"responses":{"200":{"description":"User deleted"},"401":{"description":"Unauthorized"},"404":{"description":"User not found"}}}},"/api/foods":{"get":{"tags":["Foods"],"summary":"List foods","security":[{"bearerAuth":[]}],"responses":{"200":{"description":"List of foods"},"401":{"description":"Unauthorized"}}},"post":{"tags":["Foods"],"summary":"Create a food","security":[{"bearerAuth":[]}],"requestBody":{"required":true,"content":{"application/json":{"schema":{"type":"object","required":["name"],"properties":{"name":{"type":"string","example":"Tacos"},"image":{"type":"string","example":"https://example.com/tacos.jpg"}}}}}},"responses":{"200":{"description":"Food created"},"400":{"description":"Validation error"},"401":{"description":"Unauthorized"}}}},"/api/foods/{food_id}":{"get":{"tags":["Foods"],"summary":"Get a food by id","security":[{"bearerAuth":[]}],"parameters":[{"in":"path","name":"food_id","required":true,"schema":{"type":"string"}}],"responses":{"200":{"description":"Food details"},"401":{"description":"Unauthorized"},"404":{"description":"Food not found"}}},"put":{"tags":["Foods"],"summary":"Update a food","security":[{"bearerAuth":[]}],"parameters":[{"in":"path","name":"food_id","required":true,"schema":{"type":"string"}}],"requestBody":{"required":true,"content":{"application/json":{"schema":{"type":"object","properties":{"name":{"type":"string"},"image":{"type":"string"}}}}}},"responses":{"200":{"description":"Food updated"},"400":{"description":"Validation error"},"401":{"description":"Unauthorized"},"404":{"description":"Food not found"}}},"delete":{"tags":["Foods"],"summary":"Delete a food","security":[{"bearerAuth":[]}],"parameters":[{"in":"path","name":"food_id","required":true,"schema":{"type":"string"}}],"responses":{"200":{"description":"Food deleted"},"401":{"description":"Unauthorized"},"404":{"description":"Food not found"}}}},"/api":{"get":{"tags":["Status"],"summary":"API root status","responses":{"200":{"description":"API status"}}}},"/api/auth":{"get":{"tags":["Auth"],"summary":"Test auth GET endpoint","responses":{"200":{"description":"Auth GET response"}}},"post":{"tags":["Auth"],"summary":"Test auth POST endpoint","responses":{"200":{"description":"Auth POST response with token"}}}},"/healthz":{"get":{"tags":["Status"],"summary":"Health check","responses":{"200":{"description":"Health status"}}}}},"tags":[{"name":"Auth","description":"Authentication endpoints"},{"name":"Users","description":"User management"},{"name":"Foods","description":"Food items"},{"name":"Status","description":"API status endpoints"}]}
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/api/v1/auth/register": {
+      "post": {
+        "operationId": "register",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CredentialsDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserEnvelopeDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Register an account",
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/api/v1/auth/login": {
+      "post": {
+        "operationId": "login",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CredentialsDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserEnvelopeDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Log in",
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/api/v1/auth/logout": {
+      "post": {
+        "operationId": "logout",
+        "parameters": [],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "summary": "Log out",
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/api/v1/auth/session": {
+      "get": {
+        "operationId": "getSession",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserEnvelopeDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "hungr_session": []
+          }
+        ],
+        "summary": "Get the authenticated session",
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/api/v1/users/me": {
+      "get": {
+        "operationId": "getCurrentUser",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserEnvelopeDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "hungr_session": []
+          }
+        ],
+        "summary": "Get current user",
+        "tags": [
+          "Users"
+        ]
+      },
+      "patch": {
+        "operationId": "updateCurrentUser",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUserDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserEnvelopeDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "hungr_session": []
+          }
+        ],
+        "summary": "Update current user",
+        "tags": [
+          "Users"
+        ]
+      }
+    },
+    "/api/v1/foods": {
+      "get": {
+        "operationId": "listFoods",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FoodListEnvelopeDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "hungr_session": []
+          }
+        ],
+        "summary": "List your foods",
+        "tags": [
+          "Foods"
+        ]
+      },
+      "post": {
+        "operationId": "createFood",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateFoodDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FoodEnvelopeDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "hungr_session": []
+          }
+        ],
+        "summary": "Create a food",
+        "tags": [
+          "Foods"
+        ]
+      }
+    },
+    "/api/v1/foods/{id}": {
+      "get": {
+        "operationId": "getFood",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FoodEnvelopeDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "hungr_session": []
+          }
+        ],
+        "summary": "Get one of your foods",
+        "tags": [
+          "Foods"
+        ]
+      },
+      "patch": {
+        "operationId": "updateFood",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateFoodDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FoodEnvelopeDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "hungr_session": []
+          }
+        ],
+        "summary": "Update your food",
+        "tags": [
+          "Foods"
+        ]
+      },
+      "delete": {
+        "operationId": "deleteFood",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "hungr_session": []
+          }
+        ],
+        "summary": "Delete your food",
+        "tags": [
+          "Foods"
+        ]
+      }
+    },
+    "/healthz": {
+      "get": {
+        "operationId": "getHealth",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "API and MongoDB are healthy.\n\nThe Health Check is successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "ok"
+                    },
+                    "info": {
+                      "type": "object",
+                      "example": {
+                        "database": {
+                          "status": "up"
+                        }
+                      },
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": [
+                          "status"
+                        ],
+                        "properties": {
+                          "status": {
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": true
+                      },
+                      "nullable": true
+                    },
+                    "error": {
+                      "type": "object",
+                      "example": {},
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": [
+                          "status"
+                        ],
+                        "properties": {
+                          "status": {
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": true
+                      },
+                      "nullable": true
+                    },
+                    "details": {
+                      "type": "object",
+                      "example": {
+                        "database": {
+                          "status": "up"
+                        }
+                      },
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": [
+                          "status"
+                        ],
+                        "properties": {
+                          "status": {
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": true
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "503": {
+            "description": "MongoDB is unavailable.\n\nThe Health Check is not successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "string",
+                      "example": "error"
+                    },
+                    "info": {
+                      "type": "object",
+                      "example": {
+                        "database": {
+                          "status": "up"
+                        }
+                      },
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": [
+                          "status"
+                        ],
+                        "properties": {
+                          "status": {
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": true
+                      },
+                      "nullable": true
+                    },
+                    "error": {
+                      "type": "object",
+                      "example": {
+                        "redis": {
+                          "status": "down",
+                          "message": "Could not connect"
+                        }
+                      },
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": [
+                          "status"
+                        ],
+                        "properties": {
+                          "status": {
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": true
+                      },
+                      "nullable": true
+                    },
+                    "details": {
+                      "type": "object",
+                      "example": {
+                        "database": {
+                          "status": "up"
+                        },
+                        "redis": {
+                          "status": "down",
+                          "message": "Could not connect"
+                        }
+                      },
+                      "additionalProperties": {
+                        "type": "object",
+                        "required": [
+                          "status"
+                        ],
+                        "properties": {
+                          "status": {
+                            "type": "string"
+                          }
+                        },
+                        "additionalProperties": true
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Check API health",
+        "tags": [
+          "Status"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "Hungr API",
+    "description": "Private food sharing API for the Hungr application.",
+    "version": "1.0.0",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "securitySchemes": {
+      "cookie": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "hungr_session"
+      }
+    },
+    "schemas": {
+      "CredentialsDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "example": "you@example.com"
+          },
+          "password": {
+            "type": "string",
+            "example": "correct-horse-battery-staple",
+            "minLength": 8
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ]
+      },
+      "UserResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "507f1f77bcf86cd799439011"
+          },
+          "email": {
+            "type": "string",
+            "example": "you@example.com"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "email",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "UserDataDto": {
+        "type": "object",
+        "properties": {
+          "user": {
+            "$ref": "#/components/schemas/UserResponseDto"
+          }
+        },
+        "required": [
+          "user"
+        ]
+      },
+      "UserEnvelopeDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/UserDataDto"
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "UpdateUserDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "example": "new-email@example.com"
+          }
+        }
+      },
+      "FoodResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "507f1f77bcf86cd799439011"
+          },
+          "name": {
+            "type": "string",
+            "example": "Tacos"
+          },
+          "imageUrl": {
+            "type": "string",
+            "example": "https://example.com/tacos.jpg",
+            "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "imageUrl",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "FoodListDataDto": {
+        "type": "object",
+        "properties": {
+          "foods": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FoodResponseDto"
+            }
+          }
+        },
+        "required": [
+          "foods"
+        ]
+      },
+      "FoodListEnvelopeDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/FoodListDataDto"
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "CreateFoodDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Tacos",
+            "maxLength": 120
+          },
+          "imageUrl": {
+            "type": "string",
+            "example": "https://example.com/tacos.jpg",
+            "nullable": true
+          }
+        },
+        "required": [
+          "name"
+        ]
+      },
+      "FoodDataDto": {
+        "type": "object",
+        "properties": {
+          "food": {
+            "$ref": "#/components/schemas/FoodResponseDto"
+          }
+        },
+        "required": [
+          "food"
+        ]
+      },
+      "FoodEnvelopeDto": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "$ref": "#/components/schemas/FoodDataDto"
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "UpdateFoodDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Tacos",
+            "maxLength": 120
+          },
+          "imageUrl": {
+            "type": "string",
+            "example": "https://example.com/tacos.jpg",
+            "nullable": true
+          }
+        }
+      }
+    }
+  }
+}
